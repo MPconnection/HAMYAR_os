@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>همیار</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:        #1C1917;
+  --bg2:       #231F1D;
+  --card:      #292524;
+  --card2:     #312D2B;
+  --line:      rgba(255,255,255,.07);
+  --line2:     rgba(255,255,255,.12);
+  --text:      #F5F0EB;
+  --text2:     #A8A29E;
+  --text3:     #57534E;
+  --gold:      #F5A623;
+  --gold2:     #D4880A;
+  --rose:      #E8607A;
+  --rose2:     #C4415A;
+  --teal:      #4ECDC4;
+  --green:     #6BCB77;
+  --purple:    #A78BFA;
+  --r:         16px;
+  --r-sm:      10px;
+  --nav:       60px;
+  --safe-b:    env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{
+  font-family:'Vazirmatn',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── SCROLL ── */
+main{overflow-y:scroll;-webkit-overflow-scrolling:touch;height:calc(100dvh - var(--nav) - var(--safe-b));}
+.page{display:none;padding:0 16px calc(var(--nav) + var(--safe-b) + 32px);max-width:480px;margin:0 auto}
+.page.active{display:block;animation:fadeUp .22s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HEADER ── */
+.top-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 16px 12px;
+  max-width:480px;margin:0 auto;
+  position:sticky;top:0;z-index:5;
+  background:linear-gradient(180deg,var(--bg) 80%,transparent);
+}
+.top-bar .greeting{font-size:.72rem;color:var(--text2);margin-bottom:2px}
+.top-bar .date-line{font-size:.96rem;font-weight:700;color:var(--text)}
+.score-ring{
+  width:46px;height:46px;border-radius:50%;cursor:pointer;
+  background:conic-gradient(var(--gold) calc(var(--pct,0)*1%),var(--card) 0);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 2px var(--bg);
+  transition:transform .2s;
+}
+.score-ring:active{transform:scale(.93)}
+.score-ring span{
+  width:36px;height:36px;border-radius:50%;background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:800;color:var(--gold);
+}
+
+/* ── SECTION TITLE ── */
+.sec{font-size:.7rem;font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin:20px 0 10px}
+
+/* ── NARRATIVE CARD ── */
+.narrative{
+  background:var(--card);border-radius:var(--r);
+  padding:20px;margin-bottom:14px;
+  border:1px solid var(--line2);
+  position:relative;overflow:hidden;
+}
+.narrative::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(245,166,35,.08),transparent 60%);
+  pointer-events:none;
+}
+.narrative .nar-label{font-size:.65rem;font-weight:700;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.narrative .nar-text{font-size:.92rem;font-weight:600;line-height:1.65;color:var(--text)}
+.narrative .nar-text em{font-style:normal;color:var(--gold)}
+.narrative .nar-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ntag{font-size:.63rem;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid}
+.ntag-gold{color:var(--gold);border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.08)}
+.ntag-rose{color:var(--rose);border-color:rgba(232,96,122,.3);background:rgba(232,96,122,.08)}
+.ntag-teal{color:var(--teal);border-color:rgba(78,205,196,.3);background:rgba(78,205,196,.08)}
+.ntag-purple{color:var(--purple);border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.08)}
+
+/* ── SUGGESTION STRIP ── */
+.sug-strip{
+  display:flex;gap:8px;align-items:flex-start;
+  background:var(--card);border-radius:var(--r);
+  padding:14px 16px;margin-bottom:14px;
+  border:1px solid rgba(232,96,122,.18);
+  position:relative;
+}
+.sug-strip .sug-dismiss{
+  position:absolute;left:12px;top:12px;
+  font-size:.7rem;color:var(--text3);cursor:pointer;padding:4px;
+  background:none;border:none;font-family:inherit;
+}
+.sug-strip .sug-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px}
+.sug-strip .sug-body .sug-label{font-size:.63rem;font-weight:700;color:var(--rose);margin-bottom:3px}
+.sug-strip .sug-body .sug-text{font-size:.8rem;color:var(--text);line-height:1.6}
+
+/* ── TASK ROWS ── */
+.task-list{background:var(--card);border-radius:var(--r);border:1px solid var(--line);overflow:visible}
+.task-item{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background .15s;
+  position:relative;
+}
+.task-item:last-child{border-bottom:none}
+.task-item:active{background:var(--card2)}
+.task-item.done .task-title{text-decoration:line-through;color:var(--text3)}
+.chk{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--line2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;transition:.2s;cursor:pointer;
+}
+.chk.done{background:var(--green);border-color:var(--green);color:#fff;
+  box-shadow:0 0 10px rgba(107,203,119,.4);animation:checkPop .3s cubic-bezier(.36,.07,.19,.97)}
+@keyframes checkPop{0%{transform:scale(1)}40%{transform:scale(1.3)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+.task-body{flex:1;min-width:0}
+.task-title{font-size:.86rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-meta{display:flex;gap:5px;margin-top:3px;align-items:center}
+.flag{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.flag-p1{background:var(--rose)}
+.flag-p2{background:var(--gold)}
+.flag-p3{background:var(--text3)}
+.pill{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px}
+.pill-work{background:rgba(78,205,196,.1);color:var(--teal)}
+.pill-rel{background:rgba(232,96,122,.1);color:var(--rose)}
+.task-arrow{color:var(--text3);font-size:.8rem;flex-shrink:0}
+
+/* ── STREAK DOTS ── */
+.streak-row{display:flex;align-items:center;gap:6px;background:var(--card);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;border:1px solid var(--line)}
+.streak-fire{font-size:1.2rem;animation:flicker 2s ease-in-out infinite}
+@keyframes flicker{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.1) rotate(2deg)}}
+.streak-count{font-size:1.1rem;font-weight:900;color:var(--gold);margin-left:2px}
+.streak-lbl{font-size:.7rem;color:var(--text2);margin-left:2px}
+.streak-dots{display:flex;gap:4px;margin-right:auto}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--card2)}
+.sdot.done{background:var(--gold)}
+.sdot.today{background:var(--rose);animation:pulseDot 1.6s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:var(--card);border-radius:var(--r);padding:14px 16px;border:1px solid var(--line)}
+.stat-card .sl{font-size:.65rem;color:var(--text2);margin-bottom:4px}
+.stat-card .sv{font-size:1.8rem;font-weight:900;line-height:1}
+.stat-card .ss{font-size:.65rem;color:var(--text2);margin-top:4px}
+.sv-gold{color:var(--gold)}
+.sv-rose{color:var(--rose)}
+
+/* ── TABS (inline) ── */
+.seg{display:flex;background:var(--card);border-radius:var(--r-sm);padding:3px;gap:2px;margin-bottom:14px;border:1px solid var(--line)}
+.seg-btn{flex:1;padding:8px 4px;border-radius:8px;font-size:.74rem;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;transition:.18s;border:none;background:none;font-family:inherit}
+.seg-btn.active{background:var(--card2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+/* ── FAB ── */
+.fab{
+  position:fixed;left:24px;bottom:calc(var(--nav) + var(--safe-b) + 16px);
+  width:52px;height:52px;border-radius:50%;z-index:50;
+  background:linear-gradient(135deg,var(--gold),var(--rose));
+  color:#fff;font-size:1.5rem;font-weight:300;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(245,166,35,.45);
+  cursor:pointer;transition:.2s;border:none;font-family:inherit;
+}
+.fab:active{transform:scale(.9)}
+.fab.hidden{transform:scale(0);opacity:0;pointer-events:none}
+
+/* ── BOTTOM SHEET ── */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.sheet-bg.open{opacity:1;pointer-events:all}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:101;
+  background:var(--bg2);border-radius:20px 20px 0 0;
+  padding:0 16px calc(16px + var(--safe-b));
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);
+  max-width:480px;margin:0 auto;
+  max-height:85dvh;overflow-y:auto;
+}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--line2);margin:12px auto 18px}
+.sheet-title{font-size:1rem;font-weight:800;margin-bottom:16px;padding:0 2px}
+.sheet-close{position:absolute;left:16px;top:16px;width:32px;height:32px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--text2);border:none;font-family:inherit}
+
+/* ── FORM ELEMENTS ── */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:.72rem;font-weight:700;color:var(--text2)}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  background:var(--card);border:1.5px solid var(--line2);border-radius:var(--r-sm);
+  padding:12px 14px;color:var(--text);font-family:inherit;font-size:.88rem;
+  width:100%;outline:none;transition:.18s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,166,35,.1)}
+textarea{resize:none;min-height:72px;line-height:1.5}
+select option{background:var(--card)}
+.row-flex{display:flex;gap:8px}
+.row-flex>*{flex:1}
+
+/* ── SEG OPTIONS (priority/list) ── */
+.opt-row{display:flex;gap:6px;margin-bottom:12px}
+.opt-btn{
+  flex:1;padding:9px 4px;border-radius:var(--r-sm);font-size:.72rem;font-weight:700;
+  text-align:center;cursor:pointer;border:1.5px solid var(--line);
+  color:var(--text2);background:var(--card);transition:.15s;font-family:inherit;
+}
+.opt-btn.on-p1{background:rgba(232,96,122,.12);color:var(--rose);border-color:var(--rose)}
+.opt-btn.on-p2{background:rgba(245,166,35,.12);color:var(--gold);border-color:var(--gold)}
+.opt-btn.on-p3{background:var(--card2);color:var(--text);border-color:var(--line2)}
+.opt-btn.on-work{background:rgba(78,205,196,.1);color:var(--teal);border-color:var(--teal)}
+.opt-btn.on-rel{background:rgba(232,96,122,.1);color:var(--rose);border-color:var(--rose)}
+
+/* ── PRIMARY BUTTON ── */
+.btn-primary{
+  width:100%;padding:14px;border-radius:var(--r-sm);border:none;cursor:pointer;
+  font-family:inherit;font-size:.9rem;font-weight:800;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1C1917;
+  box-shadow:0 4px 18px rgba(245,166,35,.35);transition:.18s;
+}
+.btn-primary:active{transform:scale(.97)}
+.btn-ghost{
+  width:100%;padding:12px;border-radius:var(--r-sm);border:1.5px solid var(--line2);
+  cursor:pointer;font-family:inherit;font-size:.86rem;font-weight:700;
+  background:transparent;color:var(--text2);transition:.18s;margin-top:8px;
+}
+.btn-ghost:active{background:var(--card2)}
+.btn-rose{background:linear-gradient(135deg,var(--rose),var(--rose2));color:#fff;box-shadow:0 4px 18px rgba(232,96,122,.35)}
+
+/* ── GOALS ── */
+.goal-card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:10px;border:1px solid var(--line)}
+.goal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.goal-horizon{font-size:.63rem;font-weight:700;color:var(--gold);margin-bottom:2px}
+.goal-name{font-size:.9rem;font-weight:700}
+.goal-del{font-size:.8rem;color:var(--text3);cursor:pointer;padding:4px 8px;border:none;background:none;font-family:inherit}
+.progress-track{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;margin:6px 0}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--rose));transition:width .4s}
+.goal-pct{font-size:.65rem;font-weight:700;color:var(--gold)}
+.step-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.82rem}
+.step-chk{width:18px;height:18px;border-radius:5px;border:2px solid var(--line2);cursor:pointer;flex-shrink:0;transition:.18s}
+.step-chk.done{background:linear-gradient(135deg,var(--gold),var(--rose));border-color:transparent}
+.step-text.done{text-decoration:line-through;color:var(--text3)}
+
+/* ── RELATION PAGE ── */
+.rel-accordion{background:var(--card);border-radius:var(--r);margin-bottom:10px;overflow:hidden;border:1px solid var(--line)}
+.rel-acc-head{
+  display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer;
+  transition:background .15s;
+}
+.rel-acc-head:active{background:var(--card2)}
+.rel-acc-icon{font-size:1.2rem;width:36px;height:36px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rel-acc-title{font-size:.9rem;font-weight:700;flex:1}
+.rel-acc-sub{font-size:.7rem;color:var(--text2);margin-top:1px}
+.rel-acc-arrow{color:var(--text3);font-size:.8rem;transition:transform .2s}
+.rel-acc-arrow.open{transform:rotate(180deg)}
+.rel-acc-body{display:none;padding:0 16px 16px;border-top:1px solid var(--line)}
+.rel-acc-body.open{display:block;animation:fadeUp .18s ease}
+
+/* ── CYCLE WHEEL ── */
+.cycle-wrap{display:flex;flex-direction:column;align-items:center;padding:16px 0}
+.cycle-wheel{width:min(200px,65vw);height:min(200px,65vw);position:relative;margin-bottom:14px}
+.cycle-ring{position:absolute;inset:0;border-radius:50%}
+.cycle-inner{
+  position:absolute;inset:14%;border-radius:50%;
+  background:var(--card);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:10px;
+  border:1px solid var(--line2);
+}
+.cycle-day{font-size:2rem;font-weight:900;color:var(--gold);line-height:1}
+.cycle-tag{font-size:.62rem;color:var(--text2);margin-top:2px}
+.cycle-msg{font-size:.75rem;font-weight:600;margin-top:6px;line-height:1.45}
+.daymark{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid var(--bg2);z-index:2}
+.cycle-legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:.65rem;color:var(--text2)}
+.cycle-legend span{display:inline-flex;align-items:center;gap:4px}
+.cdot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.cycle-btns{display:flex;gap:8px;width:100%;margin-top:14px}
+.cycle-btns button{flex:1;padding:11px;border-radius:var(--r-sm);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:.18s}
+.btn-period{background:linear-gradient(135deg,var(--rose),var(--rose2));color:#fff}
+.btn-edit{background:var(--card2);color:var(--text);border:1.5px solid var(--line2)!important;border:none}
+.btn-edit:active,.btn-period:active{transform:scale(.96)}
+
+/* ── MOOD SCALE ── */
+.mood-emojis{display:flex;gap:6px;margin:10px 0}
+.mood-emojis button{
+  flex:1;font-size:1.4rem;padding:10px 0;border-radius:12px;
+  background:var(--card2);border:2px solid transparent;cursor:pointer;
+  transition:.18s;font-family:inherit;
+}
+.mood-emojis button.sel{border-color:var(--rose);background:rgba(232,96,122,.12);transform:scale(1.1) translateY(-2px)}
+
+/* ── PULSE BAR CHART ── */
+.pulse-bars{display:flex;align-items:flex-end;gap:3px;height:52px;margin:10px 0 4px}
+.pbar{flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:.3s}
+.pulse-labels{display:flex;justify-content:space-between;font-size:.58rem;color:var(--text3)}
+
+/* ── HEATMAP ── */
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0 4px}
+.hcell{aspect-ratio:1;border-radius:4px;background:var(--card2)}
+
+/* ── MEMORY ── */
+.mem-item{padding:12px 0;border-bottom:1px solid var(--line)}
+.mem-item:last-child{border-bottom:none}
+.mem-date{font-size:.63rem;color:var(--gold);font-weight:700}
+.mem-title{font-size:.86rem;font-weight:700;margin:3px 0}
+.mem-note{font-size:.76rem;color:var(--text2);line-height:1.55}
+
+/* ── CHALLENGE ── */
+.ch-dots{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.ch-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--text3);transition:.2s}
+.ch-dot.done{background:var(--gold);border-color:var(--gold);color:#1C1917}
+
+/* ── FLOW PAGE ── */
+.flow-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0 12px}
+.timer-ring{position:relative;width:min(220px,72vw);height:min(220px,72vw);margin-bottom:20px}
+.timer-ring svg{transform:rotate(-90deg)}
+.trk-bg{fill:none;stroke:var(--card2);stroke-width:10}
+.trk-fg{fill:none;stroke:url(#tg);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .5s linear}
+.timer-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.timer-num{font-size:2.8rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.timer-mode{font-size:.7rem;color:var(--text2);margin-top:4px}
+.timer-btns{display:flex;gap:10px;justify-content:center}
+.timer-btns button{flex:1;max-width:120px;padding:12px;border-radius:var(--r-sm);font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.18s;border:none}
+.tbtn-main{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1C1917;box-shadow:0 4px 18px rgba(245,166,35,.35)}
+.tbtn-ghost{background:var(--card);color:var(--text2);border:1.5px solid var(--line2)!important;border:none}
+.tbtn-main:active,.tbtn-ghost:active{transform:scale(.95)}
+.flow-task-card{
+  background:var(--card);border-radius:var(--r);padding:14px 16px;
+  margin-bottom:14px;border:1px solid var(--line);width:100%;cursor:pointer;transition:.15s;
+}
+.flow-task-card:active{background:var(--card2)}
+.flow-task-lbl{font-size:.63rem;color:var(--text2);margin-bottom:4px}
+.flow-task-name{font-size:.9rem;font-weight:700}
+
+/* ── NAV ── */
+nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  background:rgba(28,25,23,.95);
+  border-top:1px solid var(--line);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;
+  padding-bottom:var(--safe-b);
+}
+.ni{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 4px;color:var(--text3);cursor:pointer;
+  font-size:.6rem;font-weight:700;transition:.15s;
+  border:none;background:none;font-family:inherit;
+}
+.ni .ic{font-size:1.3rem;transition:.2s}
+.ni.active{color:var(--gold)}
+.ni.active .ic{filter:drop-shadow(0 0 4px var(--gold));transform:translateY(-1px)}
+
+/* ── MONAS FLOATING BTN ── */
+.monas-fab{
+  position:fixed;left:80px;bottom:calc(var(--nav) + var(--safe-b) + 16px);
+  z-index:50;display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#4A1C8A,#7B2D8B);
+  border-radius:24px;padding:10px 16px;
+  box-shadow:0 4px 20px rgba(120,50,180,.45);
+  cursor:pointer;border:none;font-family:inherit;
+  transition:.2s;
+}
+.monas-fab:active{transform:scale(.93)}
+.monas-fab.hidden{transform:scale(0);opacity:0;pointer-events:none}
+.monas-fab-icon{font-size:1.1rem;animation:monasPulse 3s ease-in-out infinite}
+@keyframes monasPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.monas-fab-lbl{font-size:.72rem;font-weight:700;color:#E0B0FF}
+
+/* ── MONAS SHEET (full height) ── */
+.monas-sheet{
+  position:fixed;inset:0;z-index:200;
+  background:#0D0818;
+  transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;
+  max-width:480px;margin:0 auto;
+}
+.monas-sheet.open{transform:translateY(0)}
+.monas-sheet::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 40% at 30% 0%,rgba(150,60,220,.15),transparent 55%),
+    radial-gradient(ellipse 50% 35% at 85% 15%,rgba(220,80,120,.1),transparent 50%);
+}
+.monas-header{
+  display:flex;align-items:center;gap:12px;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 16px 14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  position:relative;z-index:1;
+  background:rgba(13,8,24,.6);
+  backdrop-filter:blur(20px);
+}
+.monas-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);border:none;cursor:pointer;font-size:1rem;color:var(--text2);display:flex;align-items:center;justify-content:center;font-family:inherit}
+.monas-avatar{width:40px;height:40px;position:relative;flex-shrink:0}
+.monas-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#A855F7,#EC4899,#F59E0B,#A855F7);animation:spin 3s linear infinite;filter:blur(.3px)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.monas-face{position:absolute;inset:3px;border-radius:50%;background:#1C0A30;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.monas-info{flex:1}
+.monas-name{font-size:.92rem;font-weight:800;background:linear-gradient(90deg,#D8B4FE,#F9A8D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.monas-status{font-size:.63rem;color:#9B72CF;margin-top:2px;display:flex;align-items:center;gap:4px}
+.online-dot{width:6px;height:6px;border-radius:50%;background:#6BCB77;animation:pulseDot 2s ease-in-out infinite;flex-shrink:0}
+.monas-clear{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text2);font-size:.68rem;font-weight:700;cursor:pointer;font-family:inherit}
+
+.monas-ctx{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;position:relative;z-index:1}
+.monas-ctx::-webkit-scrollbar{display:none}
+.mctx{font-size:.63rem;font-weight:700;padding:5px 11px;border-radius:20px;border:1px solid;white-space:nowrap}
+.mctx-cycle{color:#FF8FAB;border-color:rgba(255,143,171,.3);background:rgba(255,143,171,.08)}
+.mctx-mood{color:#C084FC;border-color:rgba(192,132,252,.3);background:rgba(192,132,252,.08)}
+.mctx-task{color:#4ECDC4;border-color:rgba(78,205,196,.3);background:rgba(78,205,196,.08)}
+
+.monas-msgs{flex:1;overflow-y:auto;padding:14px 14px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+.monas-msgs::-webkit-scrollbar{width:2px}
+.monas-msgs::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3);border-radius:2px}
+
+.monas-intro{text-align:center;padding:28px 20px 12px;animation:fadeUp .5s ease}
+.monas-orb{
+  width:72px;height:72px;border-radius:50%;margin:0 auto 14px;
+  background:radial-gradient(circle at 35% 35%,#7C3AED,#3B1A6B);
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
+  box-shadow:0 0 40px rgba(124,58,237,.5);
+  animation:orbBreath 4s ease-in-out infinite;
+}
+@keyframes orbBreath{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(124,58,237,.5)}50%{transform:scale(1.06);box-shadow:0 0 60px rgba(124,58,237,.7)}}
+.monas-intro-title{font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:6px}
+.monas-intro-sub{font-size:.78rem;color:#7C6A9A;line-height:1.7}
+
+.mbubble{display:flex;gap:8px;align-items:flex-end;animation:bubbleIn .25s cubic-bezier(.34,1.4,.64,1)}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.mbubble.user{flex-direction:row-reverse}
+.bavy{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;background:#1C0A30;border:1.5px solid rgba(168,85,247,.3)}
+.bavy.user{background:#0A1C1B;border-color:rgba(78,205,196,.3)}
+.btext{
+  max-width:80%;padding:11px 14px;border-radius:18px;font-size:.84rem;line-height:1.65;
+  backdrop-filter:blur(12px);
+}
+.mbubble.ai .btext{background:rgba(255,255,255,.055);border:1px solid rgba(168,85,247,.2);color:#E8DCFF;border-bottom-right-radius:5px}
+.mbubble.user .btext{background:linear-gradient(135deg,rgba(168,85,247,.25),rgba(236,72,153,.18));border:1px solid rgba(168,85,247,.3);color:#F0E0FF;border-bottom-left-radius:5px}
+.btime{font-size:.56rem;color:rgba(255,255,255,.18);margin-top:4px;padding:0 3px}
+
+.typing-wrap{display:flex;gap:8px;align-items:flex-end}
+.typing-dots{display:flex;gap:5px;align-items:center;padding:14px 16px;background:rgba(255,255,255,.055);border:1px solid rgba(168,85,247,.2);border-radius:18px;border-bottom-right-radius:5px}
+.tdot{width:7px;height:7px;border-radius:50%;animation:tbounce 1.3s ease-in-out infinite}
+.tdot:nth-child(1){background:#A855F7;animation-delay:0s}
+.tdot:nth-child(2){background:#EC4899;animation-delay:.18s}
+.tdot:nth-child(3){background:#F59E0B;animation-delay:.36s}
+@keyframes tbounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-7px);opacity:1}}
+
+.monas-sugs{display:flex;gap:7px;padding:8px 14px 10px;overflow-x:auto;scrollbar-width:none;border-top:1px solid rgba(255,255,255,.04);position:relative;z-index:1}
+.monas-sugs::-webkit-scrollbar{display:none}
+.msug{
+  white-space:nowrap;font-size:.69rem;font-weight:600;padding:8px 14px;
+  border-radius:22px;background:rgba(168,85,247,.08);
+  border:1px solid rgba(168,85,247,.25);color:#C084FC;
+  cursor:pointer;flex-shrink:0;font-family:inherit;transition:.15s;
+}
+.msug:active{background:rgba(168,85,247,.2);transform:scale(.95)}
+
+.monas-input-bar{
+  display:flex;align-items:flex-end;gap:10px;
+  padding:10px 14px calc(12px + var(--safe-b));
+  border-top:1px solid rgba(168,85,247,.12);
+  background:rgba(13,8,24,.8);
+  backdrop-filter:blur(20px);
+  position:relative;z-index:1;
+}
+.monas-input{
+  flex:1;background:rgba(255,255,255,.06);border:1.5px solid rgba(168,85,247,.25);
+  border-radius:16px;padding:11px 14px;color:#E8DCFF;font-family:inherit;
+  font-size:.86rem;outline:none;resize:none;max-height:100px;line-height:1.5;transition:.18s;
+}
+.monas-input:focus{border-color:rgba(168,85,247,.6);background:rgba(255,255,255,.09)}
+.monas-input::placeholder{color:rgba(168,85,247,.4)}
+.monas-send{
+  width:42px;height:42px;border-radius:50%;padding:0;flex-shrink:0;
+  background:linear-gradient(135deg,#A855F7,#EC4899);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 18px rgba(168,85,247,.45);border:none;cursor:pointer;transition:.18s;
+}
+.monas-send:active{transform:scale(.9)}
+.monas-send:disabled{opacity:.3;transform:none}
+
+/* ── CONFETTI ── */
+.cf-layer{position:fixed;inset:0;pointer-events:none;z-index:300;overflow:hidden}
+.cf{position:absolute;top:-10px;font-size:1rem;animation:cfFall linear forwards}
+@keyframes cfFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ── RIPPLE ── */
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);pointer-events:none;transform:scale(0);animation:rippleAnim .5s linear}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:32px 16px;color:var(--text3)}
+.empty-state .ei{font-size:2rem;margin-bottom:8px}
+.empty-state p{font-size:.82rem;line-height:1.6}
+
+/* ── SETTINGS ── */
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}
+.set-row:last-child{border-bottom:none}
+.set-lbl{font-size:.86rem;font-weight:600}
+.set-sub{font-size:.68rem;color:var(--text2);margin-top:2px}
+.sw{width:44px;height:25px;border-radius:13px;background:var(--card2);position:relative;cursor:pointer;flex-shrink:0;border:1px solid var(--line);transition:.2s}
+.sw::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:var(--text3);top:2px;right:2px;transition:.22s}
+.sw.on{background:linear-gradient(135deg,var(--gold),var(--rose));border-color:transparent}
+.sw.on::after{background:#fff;right:20px}
+
+/* ── KPI STRIP ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.kpi-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 10px;text-align:center}
+.kpi-card .kv{font-size:1.5rem;font-weight:900;line-height:1}
+.kpi-card .kl{font-size:.58rem;color:var(--text2);margin-top:3px;line-height:1.3}
+.kv-gold{color:var(--gold)}
+.kv-rose{color:var(--rose)}
+.kv-green{color:var(--green)}
+.kv-dim{color:var(--text2)}
+
+/* ── WEEK CALENDAR ── */
+.week-cal{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.wc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.wc-month{font-size:.82rem;font-weight:700;color:var(--text)}
+.wc-nav{display:flex;gap:4px}
+.wc-nav button{width:26px;height:26px;border-radius:8px;background:var(--card2);border:none;color:var(--text2);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.wc-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wc-day-label{text-align:center;font-size:.6rem;color:var(--text3);font-weight:700;padding-bottom:4px}
+.wc-day{
+  aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  font-size:.72rem;font-weight:600;color:var(--text2);
+  background:transparent;transition:.15s;position:relative;
+}
+.wc-day:active{background:var(--card2)}
+.wc-day.today{background:var(--gold);color:#1C1917;font-weight:900;box-shadow:0 0 12px rgba(245,166,35,.4)}
+.wc-day.selected:not(.today){background:var(--card2);color:var(--text)}
+.wc-day.has-task::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.wc-day.today.has-task::after{background:#1C1917}
+.wc-day.holiday{color:var(--rose)}
+.wc-day.holiday.today{color:#1C1917}
+.wc-day.other-month{opacity:.25}
+
+/* ── TAG CHIPS ── */
+.tag-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0 10px}
+.tag-chips::-webkit-scrollbar{display:none}
+.tag-chip{
+  white-space:nowrap;font-size:.68rem;font-weight:700;
+  padding:6px 12px;border-radius:20px;border:1.5px solid;
+  cursor:pointer;transition:.15s;flex-shrink:0;
+  background:transparent;font-family:inherit;
+}
+.tag-chip.active{color:#1C1917!important;border-color:transparent!important}
+
+/* ── GROUP HEADERS ── */
+.group-header{
+  display:flex;align-items:center;gap:8px;
+  padding:16px 4px 8px;
+}
+.gh-icon{font-size:1rem;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gh-label{font-size:.76rem;font-weight:800;color:var(--text)}
+.gh-count{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-right:auto}
+
+/* ── TASK TAGS ── */
+.task-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.ttag{font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:8px;border:1px solid}
+
+/* ── SUBTASK EXPAND ── */
+.task-item.has-sub .task-arrow{font-size:.7rem;transition:transform .2s}
+.task-item.sub-open .task-arrow{transform:rotate(90deg)}
+.subtask-list{background:var(--bg2);border-top:1px solid var(--line);overflow:hidden;max-height:0;transition:max-height .3s cubic-bezier(.25,.8,.25,1)}
+.subtask-list.open{max-height:400px}
+.subtask-item{display:flex;align-items:center;gap:10px;padding:10px 16px 10px 32px;border-bottom:1px solid var(--line)}
+.subtask-item:last-child{border-bottom:none}
+.sub-chk{width:18px;height:18px;border-radius:50%;border:2px solid var(--line2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;cursor:pointer;transition:.18s}
+.sub-chk.done{background:var(--green);border-color:var(--green);color:#fff}
+.sub-title{font-size:.8rem;color:var(--text2)}
+.sub-title.done{text-decoration:line-through;color:var(--text3)}
+.sub-add{display:flex;align-items:center;gap:8px;padding:8px 16px 8px 32px;cursor:pointer}
+.sub-add span{font-size:.75rem;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<div class="cf-layer" id="cfLayer"></div>
+
+<!-- MONAS FULL-SCREEN SHEET -->
+<div class="monas-sheet" id="monasSheet">
+  <div class="monas-header">
+    <button class="monas-back" onclick="closeMonas()">✕</button>
+    <div class="monas-avatar">
+      <div class="monas-ring"></div>
+      <div class="monas-face">✨</div>
+    </div>
+    <div class="monas-info">
+      <div class="monas-name">مونس</div>
+      <div class="monas-status"><span class="online-dot"></span><span id="monasStatus">آنلاین · همیشه اینجام</span></div>
+    </div>
+    <button class="monas-clear" onclick="clearMonas()">پاک کردن</button>
+  </div>
+  <div class="monas-ctx" id="monasCtx"></div>
+  <div class="monas-msgs" id="monasMsgs">
+    <div class="monas-intro">
+      <div class="monas-orb">✨</div>
+      <div class="monas-intro-title">سلام، من مونسم</div>
+      <div class="monas-intro-sub">دستیار هوشمند همیار<br>از رابطه، چرخه، احساسات یا هر چیزی بپرس</div>
+    </div>
+  </div>
+  <div class="monas-sugs" id="monasSugs"></div>
+  <div class="monas-input-bar">
+    <textarea class="monas-input" id="monasInput" placeholder="بنویس…" rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMonas()}"
+      oninput="autoGrow(this)"></textarea>
+    <button class="monas-send" id="monasSendBtn" onclick="sendMonas()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- SHEET BG -->
+<div class="sheet-bg" id="sheetBg" onclick="closeSheet()"></div>
+
+<!-- BOTTOM SHEET (generic) -->
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <button class="sheet-close" onclick="closeSheet()">✕</button>
+  <div class="sheet-title" id="sheetTitle"></div>
+  <div id="sheetBody"></div>
+</div>
+
+<!-- STICKY HEADER -->
+<div class="top-bar">
+  <div>
+    <div class="greeting" id="greeting">سلام</div>
+    <div class="date-line" id="dateStr">لحظه‌ای صبر کن…</div>
+  </div>
+  <div class="score-ring" id="scoreRing" style="--pct:0" onclick="openScoreSheet()">
+    <span id="scoreVal">--</span>
+  </div>
+</div>
+
+<main id="mainScroll">
+
+  <!-- ① TODAY -->
+  <div class="page active" id="page-today">
+
+    <div class="narrative" id="narrativeCard">
+      <div class="nar-label">✦ همیار می‌گه</div>
+      <div class="nar-text" id="narText">در حال بررسی روزت…</div>
+      <div class="nar-tags" id="narTags"></div>
+    </div>
+
+    <div class="sug-strip" id="sugCard">
+      <button class="sug-dismiss" onclick="dismissSug()">✕</button>
+      <span class="sug-icon" id="sugIco">💡</span>
+      <div class="sug-body">
+        <div class="sug-label">پیشنهاد مونس</div>
+        <div class="sug-text" id="sugText">در حال تحلیل…</div>
+      </div>
+    </div>
+
+    <div class="streak-row">
+      <span class="streak-fire">🔥</span>
+      <span class="streak-count" id="streakNum">7</span>
+      <span class="streak-lbl">روز متوالی</span>
+      <div class="streak-dots" id="streakDots"></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="sl">تسک‌های امروز</div>
+        <div class="sv sv-gold" id="statTotal">--</div>
+        <div class="ss" id="statDone">-- تموم شده</div>
+      </div>
+      <div class="stat-card">
+        <div class="sl">کیف‌سنج رابطه</div>
+        <div class="sv sv-rose" id="statMood">--</div>
+        <div class="ss" id="statMoodDate">ثبت نشده</div>
+      </div>
+    </div>
+
+    <div class="sec">تسک‌های مهم امروز</div>
+    <div class="task-list" id="todayList"></div>
+    <div class="empty-state" id="todayEmpty" style="display:none">
+      <div class="ei">📋</div>
+      <p>امروز کاری نداری<br>از تب کارها اضافه کن</p>
+    </div>
+
+  </div>
+
+  <!-- ② TASKS -->
+  <div class="page" id="page-tasks">
+
+    <!-- KPI strip -->
+    <div class="kpi-strip" id="kpiStrip"></div>
+
+    <!-- Weekly mini-calendar -->
+    <div class="week-cal" id="weekCal"></div>
+
+    <!-- Segment -->
+    <div class="seg" id="taskSeg">
+      <button class="seg-btn active" data-f="today">امروز</button>
+      <button class="seg-btn" data-f="week">هفته</button>
+      <button class="seg-btn" data-f="all">همه</button>
+    </div>
+
+    <!-- Tag filter -->
+    <div class="tag-chips" id="tagChips"></div>
+
+    <div id="allList"></div>
+    <div class="empty-state" id="allEmpty" style="display:none">
+      <div class="ei">🎉</div>
+      <p>برای این بازه کاری نیست</p>
+    </div>
+
+    <div class="sec" style="margin-top:24px">اهداف بلندمدت</div>
+    <div id="goalsList"></div>
+    <button class="btn-ghost" style="width:100%;margin-top:4px" onclick="openGoalSheet()">+ هدف جدید</button>
+
+  </div>
+
+  <!-- ③ RELATION -->
+  <div class="page" id="page-rel">
+
+    <!-- Cycle accordion -->
+    <div class="rel-accordion">
+      <div class="rel-acc-head" onclick="toggleAcc('cycle')">
+        <div class="rel-acc-icon">🌙</div>
+        <div>
+          <div class="rel-acc-title">چرخه</div>
+          <div class="rel-acc-sub" id="cycleAccSub">در حال محاسبه…</div>
+        </div>
+        <div class="rel-acc-arrow" id="cycleArrow">▾</div>
+      </div>
+      <div class="rel-acc-body" id="cycleBody">
+        <div class="cycle-wrap" id="cycleWrap">
+          <div class="cycle-wheel" id="cycleWheel">
+            <div class="cycle-ring" id="cycleRing"></div>
+            <div class="cycle-inner">
+              <div class="cycle-day" id="cycleDayNum">--</div>
+              <div class="cycle-tag" id="cycleTag">روز چرخه</div>
+              <div class="cycle-msg" id="cycleMsg">تاریخ آخرین پریودت رو ثبت کن</div>
+            </div>
+          </div>
+          <div class="cycle-legend">
+            <span><i class="cdot" style="background:#E8607A"></i>پریود</span>
+            <span><i class="cdot" style="background:#4ECDC4"></i>باروری</span>
+            <span><i class="cdot" style="background:#A78BFA"></i>لوتئال</span>
+          </div>
+          <div class="cycle-btns">
+            <button class="btn-period" onclick="logPeriod()">امروز پریود شدم</button>
+            <button class="btn-edit" onclick="editCycle()">ویرایش</button>
+          </div>
+          <p style="font-size:.68rem;color:var(--text3);margin-top:10px;text-align:center">تخمین آماری — نه تشخیص پزشکی</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mood/Pulse accordion -->
+    <div class="rel-accordion">
+      <div class="rel-acc-head" onclick="toggleAcc('mood')">
+        <div class="rel-acc-icon">💗</div>
+        <div>
+          <div class="rel-acc-title">نبض رابطه</div>
+          <div class="rel-acc-sub" id="moodAccSub">ثبت نشده</div>
+        </div>
+        <div class="rel-acc-arrow" id="moodArrow">▾</div>
+      </div>
+      <div class="rel-acc-body" id="moodBody">
+        <div style="padding-top:14px">
+          <div style="font-size:.8rem;color:var(--text2);margin-bottom:8px">امروز چطور بود؟</div>
+          <div class="mood-emojis" id="moodScale">
+            <button data-v="1">😞</button>
+            <button data-v="2">😕</button>
+            <button data-v="3">🙂</button>
+            <button data-v="4">😄</button>
+            <button data-v="5">🥰</button>
+          </div>
+          <textarea id="moodNote" placeholder="یادداشت (اختیاری)" style="margin-bottom:10px"></textarea>
+          <button class="btn-primary btn-rose" onclick="saveMood()">ثبت امروز</button>
+          <div style="margin-top:16px">
+            <div style="font-size:.7rem;color:var(--text2);margin-bottom:6px">۱۴ روز اخیر</div>
+            <div class="pulse-bars" id="pulseBars"></div>
+            <div class="pulse-labels" id="pulseLabels"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory accordion -->
+    <div class="rel-accordion">
+      <div class="rel-acc-head" onclick="toggleAcc('memory')">
+        <div class="rel-acc-icon">📸</div>
+        <div>
+          <div class="rel-acc-title">صندوقچه خاطرات</div>
+          <div class="rel-acc-sub" id="memAccSub">ثبت نشده</div>
+        </div>
+        <div class="rel-acc-arrow" id="memoryArrow">▾</div>
+      </div>
+      <div class="rel-acc-body" id="memoryBody">
+        <div style="padding-top:14px">
+          <input type="text" id="memTitle" placeholder="عنوان خاطره" style="margin-bottom:8px">
+          <input type="date" id="memDate" style="margin-bottom:8px">
+          <textarea id="memNote" placeholder="چی خاص بود؟" style="margin-bottom:10px"></textarea>
+          <button class="btn-primary" onclick="saveMemory()">ذخیره خاطره</button>
+          <button class="btn-ghost" onclick="randomMemory()">مرور تصادفی 🎲</button>
+          <div id="memList" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenge accordion -->
+    <div class="rel-accordion">
+      <div class="rel-acc-head" onclick="toggleAcc('challenge')">
+        <div class="rel-acc-icon">🎯</div>
+        <div>
+          <div class="rel-acc-title">چالش هفته</div>
+          <div class="rel-acc-sub" id="chAccSub">تنظیم نشده</div>
+        </div>
+        <div class="rel-acc-arrow" id="challengeArrow">▾</div>
+      </div>
+      <div class="rel-acc-body" id="challengeBody">
+        <div id="chContent" style="padding-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- Calendar accordion -->
+    <div class="rel-accordion">
+      <div class="rel-acc-head" onclick="toggleAcc('calendar')">
+        <div class="rel-acc-icon">🗓</div>
+        <div>
+          <div class="rel-acc-title">تقویم مشترک</div>
+          <div class="rel-acc-sub">تسک + چرخه یه‌جا</div>
+        </div>
+        <div class="rel-acc-arrow" id="calendarArrow">▾</div>
+      </div>
+      <div class="rel-acc-body" id="calendarBody">
+        <div id="calContent" style="padding-top:14px"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ④ FLOW -->
+  <div class="page" id="page-flow" style="padding-bottom:40px">
+    <div class="flow-wrap">
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#F5A623"/>
+            <stop offset="100%" stop-color="#E8607A"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="timer-ring">
+        <svg width="100%" height="100%" viewBox="0 0 220 220">
+          <circle class="trk-bg" cx="110" cy="110" r="100"/>
+          <circle class="trk-fg" id="timerRing" cx="110" cy="110" r="100"
+            stroke-dasharray="628.3" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-inner">
+          <div class="timer-num" id="timerNum">25:00</div>
+          <div class="timer-mode" id="timerMode">آماده تمرکز</div>
+        </div>
+      </div>
+      <div class="timer-btns">
+        <button class="tbtn-main" onclick="startTimer()">▶ شروع</button>
+        <button class="tbtn-ghost" onclick="pauseTimer()">⏸</button>
+        <button class="tbtn-ghost" onclick="resetTimer()">↺</button>
+      </div>
+    </div>
+
+    <div class="flow-task-card" onclick="openFlowTaskPicker()">
+      <div class="flow-task-lbl">تسک فعلی</div>
+      <div class="flow-task-name" id="flowTaskName">انتخاب کن…</div>
+    </div>
+
+    <div class="sec">هیت‌مپ فعالیت</div>
+    <div class="task-list" style="padding:14px;border:1px solid var(--line);border-radius:var(--r)">
+      <div class="heatmap" id="flowHeatmap"></div>
+      <div style="font-size:.63rem;color:var(--text3);margin-top:6px">۲۸ روز — هر خونه یک روز</div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- NAV -->
+<nav>
+  <button class="ni active" data-p="today" onclick="showPage('today')">
+    <span class="ic">🏠</span>امروز
+  </button>
+  <button class="ni" data-p="tasks" onclick="showPage('tasks')">
+    <span class="ic">✅</span>کارها
+  </button>
+  <button class="ni" data-p="rel" onclick="showPage('rel')">
+    <span class="ic">❤️</span>رابطه
+  </button>
+  <button class="ni" data-p="flow" onclick="showPage('flow')">
+    <span class="ic">⏱</span>فلو
+  </button>
+</nav>
+
+<!-- FAB (add task) -->
+<button class="fab" id="fab" onclick="openAddTask()">+</button>
+
+<!-- Monas FAB -->
+<button class="monas-fab hidden" id="monasFab" onclick="openMonas()">
+  <span class="monas-fab-icon">✨</span>
+  <span class="monas-fab-lbl">مونس</span>
+</button>
+
+<script>
+/* ======================================================
+   STATE
+====================================================== */
+const $ = id => document.getElementById(id);
+const T = () => new Date().toISOString().slice(0,10);
+const addD = (s,n) => { const d=new Date(s); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+const uid = () => Math.random().toString(36).slice(2,8);
+const esc = s => String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+const Y = n => addD(T(),-n), D = n => addD(T(),n);
+
+const STORAGE_KEY = 'hamyar_v3_state';
+
+const DEFAULT_STATE = {
+  tasks:[],
+  goals:[],
+  moods:[],
+  memories:[],
+  challenge:null,
+  cycle:null,
+  streak:0,
+  flow:{mode:'focus',left:25*60,taskId:null},
+  addPriority:'p3',
+  addList:'work',
+  addTags:[],
+  activeTagFilter:null,
+  weekOffset:0,
+  _jumpDate:null,
+  calOffset:0,
+  quietMode:false,
+};
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      // merge with defaults to handle new keys in future versions
+      return Object.assign({},DEFAULT_STATE,parsed);
+    }
+  }catch(e){}
+  return Object.assign({},DEFAULT_STATE);
+}
+
+function saveState(){
+  try{
+    // don't save transient UI state
+    const toSave=Object.assign({},S);
+    delete toSave.addPriority;
+    delete toSave.addList;
+    delete toSave.addTags;
+    delete toSave.activeTagFilter;
+    delete toSave.weekOffset;
+    delete toSave._jumpDate;
+    delete toSave.calOffset;
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
+  }catch(e){}
+}
+
+let S = loadState();
+// restore transient UI defaults each session
+S.addPriority='p3';
+S.addList='work';
+S.addTags=[];
+S.activeTagFilter=null;
+S.weekOffset=0;
+S._jumpDate=null;
+S.calOffset=0;
+
+/* ======================================================
+   PAGES
+====================================================== */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('page-'+name).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('active',n.dataset.p===name));
+  const showFab = name==='tasks';
+  const showMonasFab = name==='rel';
+  $('fab').classList.toggle('hidden',!showFab);
+  $('monasFab').classList.toggle('hidden',!showMonasFab);
+  if(name==='flow'){renderHeatmap();updateTimerRing();}
+  if(name==='tasks'){renderKPI();renderWeekCal();renderTagChips();}
+  renderAll();
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+function renderHeader(){
+  const d=new Date();
+  const h=d.getHours();
+  const greet=h<12?'صبح بخیر ☀️':h<17?'روز بخیر 🌤':h<21?'عصر بخیر 🌅':'شب بخیر 🌙';
+  $('greeting').textContent=greet;
+  try{
+    $('dateStr').textContent=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{weekday:'long',day:'numeric',month:'long'}).format(d);
+  }catch(e){$('dateStr').textContent=T();}
+  const score=computeScore();
+  const ring=$('scoreRing');
+  ring.style.setProperty('--pct',score??0);
+  $('scoreVal').textContent=score!==null?score+'%':'--';
+}
+
+function computeScore(){
+  const todays=S.tasks.filter(t=>t.date===T());
+  const tp=todays.length?Math.round(100*todays.filter(t=>t.done).length/todays.length):null;
+  const lm=[...S.moods].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const mp=lm?lm.score*20:null;
+  if(tp===null&&mp===null)return null;
+  if(tp===null)return mp;
+  if(mp===null)return tp;
+  return Math.round(tp*.6+mp*.4);
+}
+
+function openScoreSheet(){
+  const score=computeScore();
+  const todays=S.tasks.filter(t=>t.date===T());
+  openSheet('امتیاز امروز',`
+    <div style="text-align:center;padding:10px 0 20px">
+      <div style="font-size:3rem;font-weight:900;color:var(--gold)">${score!==null?score+'%':'--'}</div>
+      <div style="font-size:.8rem;color:var(--text2);margin-top:4px">${score===null?'هنوز داده‌ای ثبت نشده':score>=75?'امروز فوق‌العاده بود 🎉':score>=45?'پیشرفت خوبی داری 💪':'روز سختی بود، فردا بهتره'}</div>
+    </div>
+    <div style="background:var(--card);border-radius:var(--r-sm);padding:14px 16px;border:1px solid var(--line)">
+      <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px">تسک‌های امروز</div>
+      <div style="font-size:1.4rem;font-weight:800;color:var(--gold)">${todays.filter(t=>t.done).length}<span style="font-size:.9rem;color:var(--text2);font-weight:400"> از ${todays.length}</span></div>
+    </div>
+  `);
+}
+
+/* ======================================================
+   NARRATIVE
+====================================================== */
+function renderNarrative(){
+  const todays=S.tasks.filter(t=>t.date===T());
+  const done=todays.filter(t=>t.done).length, total=todays.length;
+  const urgent=todays.filter(t=>t.priority==='p1'&&!t.done);
+  let txt='';
+  if(total===0)txt='امروز هیچ کاری ثبت نکردی. <em>آزادی!</em> یا شاید وقتشه چیزی اضافه کنی؟';
+  else if(done===total)txt=`همه‌ی ${total} تسک امروز رو <em>تموم کردی!</em> 🎉`;
+  else if(urgent.length)txt=`${urgent.length} کار <em>فوری</em> منتظرته — از ${done} تسک شروع کردی، خوبه.`;
+  else txt=`از ${total} تسک امروز، <em>${done} تا</em> انجام شد. ادامه بده!`;
+  $('narText').innerHTML=txt;
+  const ci=getCycleInfo();
+  const lm=[...S.moods].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const tags=[];
+  if(total)tags.push(`<span class="ntag ntag-gold">✅ ${done}/${total} تسک</span>`);
+  if(lm){const e={1:'😞',2:'😕',3:'🙂',4:'😄',5:'🥰'};tags.push(`<span class="ntag ntag-rose">${e[lm.score]} نبض رابطه</span>`);}
+  if(ci){
+    const labels={period:'🌸 پریود',fertile:'🌿 باروری',pms:'⚠️ PMS نزدیک',luteal:'🌙 لوتئال'};
+    tags.push(`<span class="ntag ntag-teal">${labels[ci.phase]||'📅 روز '+ci.day}</span>`);
+  }
+  if(S.streak>=3)tags.push(`<span class="ntag ntag-gold">🔥 ${S.streak} روز</span>`);
+  $('narTags').innerHTML=tags.join('');
+}
+
+/* ======================================================
+   SUGGESTION
+====================================================== */
+const SUGS=[
+  {ico:'🌹',test:s=>s.tasks.filter(t=>t.date===T()&&t.list==='rel'&&!t.done).length>0,
+    text:()=>'یه تسک رابطه‌ای باز مونده. شاید با یه پیام کوچیک شروع کنی؟'},
+  {ico:'💪',test:s=>{const t=s.tasks.filter(x=>x.date===T());return t.length>0&&t.every(x=>x.done);},
+    text:()=>'همه کارهای امروز تموم شد! یه کار خاص با پارتنرت برنامه‌ریزی کن.'},
+  {ico:'⚠️',test:s=>{const ci=getCycleInfo();return ci&&ci.phase==='pms';},
+    text:()=>'داری به PMS نزدیک میشی — این چند روز به هم صبورتر باشید.'},
+  {ico:'📈',test:s=>{const r=[...s.moods].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);return r.length>=3&&r.every(m=>m.score>=4);},
+    text:()=>'سه روز متوالی کیف‌سنج بالاست ♥️ رابطه‌تون تو فاز خوبیه — نگهش دار.'},
+  {ico:'💬',test:s=>{const r=[...s.moods].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,2);return r.length>=2&&r.every(m=>m.score<=2);},
+    text:()=>'دو روزه حس خوبی نداشتی. یه گفتگوی صادقانه گاهی همه چیز رو عوض می‌کنه.'},
+  {ico:'☀️',test:()=>true,text:()=>'یادت باشه: ارتباط یعنی هر روز یه چیز کوچیک. شاید یه پیام «فکرتم هستم» 💛'},
+];
+let sugDismissed=false;
+function renderSuggestion(){
+  if(sugDismissed){$('sugCard').style.display='none';return;}
+  for(const sg of SUGS){
+    if(sg.test(S)){$('sugIco').textContent=sg.ico;$('sugText').textContent=sg.text();return;}
+  }
+}
+function dismissSug(){sugDismissed=true;$('sugCard').style.display='none';}
+
+/* ======================================================
+   TODAY TASKS
+====================================================== */
+function renderToday(){
+  const todays=S.tasks.filter(t=>t.date===T()).sort((a,b)=>a.priority.localeCompare(b.priority));
+  const box=$('todayList');box.innerHTML='';
+  todays.slice(0,6).forEach(t=>box.appendChild(makeRow(t)));
+  $('todayEmpty').style.display=todays.length?'none':'block';
+  // stats
+  $('statTotal').textContent=todays.length;
+  $('statDone').textContent=todays.filter(t=>t.done).length+' تموم شده';
+  const lm=[...S.moods].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const e={1:'😞',2:'😕',3:'🙂',4:'😄',5:'🥰'};
+  $('statMood').textContent=lm?e[lm.score]:'--';
+  $('statMoodDate').textContent=lm?lm.date:'ثبت نشده';
+  // streak
+  const dd=$('streakDots');dd.innerHTML='';
+  for(let i=6;i>=0;i--){
+    const dot=document.createElement('div');
+    dot.className='sdot'+(i===0?' today':i<S.streak?' done':'');
+    dd.appendChild(dot);
+  }
+  $('streakNum').textContent=S.streak;
+}
+
+function makeRow(t,showDel=false){
+  const hasSubs=(t.subs||[]).length>0;
+  const subsDone=(t.subs||[]).filter(s=>s.done).length;
+  const wrapper=document.createElement('div');
+  
+  const row=document.createElement('div');
+  row.className='task-item'+(t.done?' done':'')+(hasSubs?' has-sub':'');
+  row.dataset.id=t.id;
+  
+  const pll=t.list==='work'?'<span class="pill pill-work">💼</span>':t.list==='rel'?'<span class="pill pill-rel">❤️</span>':'';
+  
+  // Tags HTML
+  const tagsHtml=(t.tags||[]).map(tg=>{
+    const def=TAG_DEFS[tg]||{color:'var(--text2)',bg:'rgba(255,255,255,.06)'};
+    return `<span class="ttag" style="color:${def.color};border-color:${def.color};background:${def.bg}">#${tg}</span>`;
+  }).join('');
+  
+  const subProg=hasSubs?`<span style="font-size:.6rem;color:var(--text3)">${subsDone}/${t.subs.length} گام</span>`:'';
+  const arrow=hasSubs?`<span class="task-arrow" style="font-size:.85rem">›</span>`:(showDel?`<button onclick="event.stopPropagation();delTask('${t.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:.9rem;padding:4px 8px">✕</button>`:'<span class="task-arrow">›</span>');
+  
+  row.innerHTML=`
+    <div class="chk${t.done?' done':''}">${t.done?'✓':''}</div>
+    <div class="task-body">
+      <div class="task-title${t.done?' done':''}">${esc(t.title)}</div>
+      <div class="task-meta">
+        <span class="flag flag-${t.priority}"></span>
+        ${pll}
+        <span style="font-size:.6rem;color:var(--text3)">${t.date}</span>
+        ${subProg}
+      </div>
+      ${tagsHtml?`<div class="task-tags">${tagsHtml}</div>`:''}
+    </div>
+    ${arrow}`;
+  
+  row.querySelector('.chk').onclick=e=>{e.stopPropagation();toggleTask(t.id);};
+  row.onclick=()=>{
+    if(hasSubs) toggleSubList(t.id,row,subListEl);
+    else openTaskSheet(t.id);
+  };
+  addRipple(row);
+  wrapper.appendChild(row);
+  
+  // Subtask list
+  const subListEl=document.createElement('div');
+  subListEl.className='subtask-list';
+  (t.subs||[]).forEach(s=>{
+    const si=document.createElement('div');si.className='subtask-item';
+    si.innerHTML=`<div class="sub-chk${s.done?' done':''}">${s.done?'✓':''}</div>
+      <span class="sub-title${s.done?' done':''}">${esc(s.title)}</span>`;
+    si.querySelector('.sub-chk').onclick=e=>{e.stopPropagation();s.done=!s.done;saveState();renderAll();};
+    subListEl.appendChild(si);
+  });
+  // Add subtask button
+  const addSub=document.createElement('div');addSub.className='sub-add';
+  addSub.innerHTML=`<span style="font-size:.8rem;color:var(--text3)">+</span><span>گام جدید</span>`;
+  addSub.onclick=e=>{e.stopPropagation();const title=prompt('عنوان گام:');if(!title)return;(t.subs=t.subs||[]).push({id:uid(),title,done:false});renderAll();};
+  subListEl.appendChild(addSub);
+  wrapper.appendChild(subListEl);
+  
+  return wrapper;
+}
+
+function toggleSubList(tid,rowEl,subEl){
+  const open=subEl.classList.toggle('open');
+  rowEl.classList.toggle('sub-open',open);
+}
+
+function toggleTask(id){
+  const t=S.tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=!t.done;
+  saveState();
+  if(t.done)confetti();
+  renderAll();
+}
+function delTask(id){
+  S.tasks=S.tasks.filter(x=>x.id!==id);
+  saveState();renderAll();
+}
+
+/* ======================================================
+   TASK SHEET (detail)
+====================================================== */
+function openTaskSheet(id){
+  const t=S.tasks.find(x=>x.id===id);
+  if(!t)return;
+  const pOpts=['p1','p2','p3'].map(p=>`<button class="opt-btn${t.priority===p?' on-'+p:''}" onclick="S.tasks.find(x=>x.id==='${id}').priority='${p}';saveState();renderAll();closeSheet()" >${p==='p1'?'🔴 فوری':p==='p2'?'⚡ مهم':'عادی'}</button>`).join('');
+  const lOpts=['work','rel'].map(l=>`<button class="opt-btn${t.list===l?' on-'+l:''}" onclick="S.tasks.find(x=>x.id==='${id}').list='${l}';saveState();renderAll();closeSheet()" >${l==='work'?'💼 کاری':'❤️ رابطه'}</button>`).join('');
+  openSheet(t.title,`
+    <div style="display:flex;gap:8px;margin-bottom:12px">${pOpts}</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">${lOpts}</div>
+    <div class="field"><label>تاریخ</label>
+      <input type="date" value="${t.date}" onchange="S.tasks.find(x=>x.id==='${id}').date=this.value;saveState();renderAll()">
+    </div>
+    <button class="btn-primary" onclick="closeSheet()">ذخیره</button>
+    <button class="btn-ghost" onclick="delTask('${id}');closeSheet()">حذف تسک</button>
+  `);
+}
+
+/* ======================================================
+   ADD TASK
+====================================================== */
+function openAddTask(){
+  const tagButtons=Object.entries(TAG_DEFS).map(([tag,def])=>
+    `<button class="tag-chip" data-tag="${tag}" style="color:${def.color};border-color:${def.color};background:${def.bg}" onclick="this.classList.toggle('active');if(this.classList.contains('active'))this.style.background='${def.color}',this.style.color='#1C1917';else this.style.background='${def.bg}',this.style.color='${def.color}'">#${tag}</button>`
+  ).join('');
+  openSheet('تسک جدید',`
+    <div class="field">
+      <input type="text" id="newTaskTitle" placeholder="عنوان تسک…" autofocus>
+    </div>
+    <div class="opt-row" id="aPriority">
+      <button class="opt-btn ${S.addPriority==='p3'?'on-p3':''}" data-v="p3">عادی</button>
+      <button class="opt-btn ${S.addPriority==='p2'?'on-p2':''}" data-v="p2">⚡ مهم</button>
+      <button class="opt-btn ${S.addPriority==='p1'?'on-p1':''}" data-v="p1">🔴 فوری</button>
+    </div>
+    <div class="opt-row" id="aList">
+      <button class="opt-btn ${S.addList==='work'?'on-work':''}" data-v="work">💼 کاری</button>
+      <button class="opt-btn ${S.addList==='rel'?'on-rel':''}" data-v="rel">❤️ رابطه</button>
+    </div>
+    <div class="field"><label>تگ‌ها</label>
+      <div class="tag-chips" id="addTagsRow" style="padding:4px 0 8px">${tagButtons}</div>
+    </div>
+    <div class="field"><label>تاریخ</label>
+      <input type="date" id="newTaskDate" value="${T()}">
+    </div>
+    <button class="btn-primary" onclick="confirmAddTask()">افزودن</button>
+  `);
+  setTimeout(()=>$('newTaskTitle')?.focus(),300);
+  $('aPriority').addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;
+    S.addPriority=b.dataset.v;
+    [...$('aPriority').children].forEach(x=>{x.className='opt-btn';});
+    b.classList.add('on-'+b.dataset.v);
+  });
+  $('aList').addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;
+    S.addList=b.dataset.v;
+    [...$('aList').children].forEach(x=>{x.className='opt-btn';});
+    b.classList.add('on-'+b.dataset.v);
+  });
+}
+function confirmAddTask(){
+  const title=$('newTaskTitle')?.value.trim();if(!title)return;
+  const date=$('newTaskDate')?.value||T();
+  const tagsSel=[...document.querySelectorAll('#addTagsRow .tag-chip.active')].map(b=>b.dataset.tag);
+  S.tasks.push({id:uid(),title,list:S.addList,priority:S.addPriority,done:false,date,tags:tagsSel,subs:[]});
+  saveState();closeSheet();renderAll();
+}
+
+/* ======================================================
+   ALL TASKS
+====================================================== */
+/* ── TAG DEFINITIONS ── */
+const TAG_DEFS={
+  'مهم':  {color:'#FF5C8A',bg:'rgba(255,92,138,.12)'},
+  'کاری': {color:'#4ECDC4',bg:'rgba(78,205,196,.12)'},
+  'شخصی': {color:'#A78BFA',bg:'rgba(167,139,250,.12)'},
+  'خانه': {color:'#F5A623',bg:'rgba(245,166,35,.12)'},
+  'خاص':  {color:'#F59E0B',bg:'rgba(245,158,11,.12)'},
+  'سلامت':{color:'#6BCB77',bg:'rgba(107,203,119,.12)'},
+};
+
+/* ── GROUP DEFINITIONS ── */
+const GROUP_DEFS={
+  work:  {label:'کاری',   icon:'💼', color:'var(--teal)',   bg:'rgba(78,205,196,.1)'},
+  rel:   {label:'رابطه', icon:'❤️', color:'var(--rose)',   bg:'rgba(232,96,122,.1)'},
+  personal:{label:'شخصی', icon:'👤', color:'var(--purple)', bg:'rgba(167,139,250,.1)'},
+};
+
+/* ── PERSIAN HOLIDAYS (month/day Shamsi) ── */
+const HOLIDAYS={
+  '1/1':'نوروز','1/2':'نوروز','1/3':'نوروز','1/4':'نوروز',
+  '1/12':'روز جمهوری اسلامی','1/13':'سیزده‌به‌در',
+  '2/14':'رحلت امام خمینی','2/15':'قیام ۱۵ خرداد',
+  '3/14':'تاسوعا','3/15':'عاشورا',
+  '6/31':'شهریور آخر','11/22':'پیروزی انقلاب','12/29':'ملی شدن نفت',
+};
+
+/* ── KPI STRIP ── */
+function renderKPI(){
+  const box=$('kpiStrip');if(!box)return;
+  const t=T();
+  const all=S.tasks.filter(x=>x.date===t);
+  const done=all.filter(x=>x.done).length;
+  const open=all.length-done;
+  const overdue=S.tasks.filter(x=>x.date<t&&!x.done).length;
+  const streak=S.streak||0;
+  box.innerHTML=`
+    <div class="kpi-card"><div class="kv kv-gold">${done}</div><div class="kl">تموم<br>شده</div></div>
+    <div class="kpi-card"><div class="kv kv-dim">${open}</div><div class="kl">باز<br>امروز</div></div>
+    <div class="kpi-card"><div class="kv ${overdue>0?'kv-rose':'kv-green'}">${overdue}</div><div class="kl">عقب<br>افتاده</div></div>
+    <div class="kpi-card"><div class="kv kv-gold">🔥${streak}</div><div class="kl">روز<br>استریک</div></div>`;
+}
+
+/* ── WEEK CALENDAR ── */
+function shamsiDay(d){
+  // Returns Persian day number string safely
+  try{
+    return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{day:'numeric'}).format(d);
+  }catch(e){return String(d.getDate());}
+}
+function shamsiMonthYear(d){
+  try{
+    return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{month:'long',year:'numeric'}).format(d);
+  }catch(e){return '';}
+}
+
+function renderWeekCal(){
+  const box=$('weekCal');
+  if(!box)return;
+  const now=new Date();
+  const t=T();
+
+  // Week starts Saturday in Iran
+  // getDay(): 0=Sun,1=Mon,...,6=Sat
+  const dow=now.getDay();
+  // distance from current day back to last Saturday
+  const toSat=(dow+1)%7; // Sat=6 → (6+1)%7=0, Sun=0→1, Mon→2 etc
+  const weekStart=new Date(now);
+  weekStart.setHours(0,0,0,0);
+  weekStart.setDate(now.getDate()-toSat+S.weekOffset*7);
+
+  const monthLabel=shamsiMonthYear(weekStart);
+
+  // Build HTML
+  box.innerHTML=`
+    <div class="wc-header">
+      <span class="wc-month">${monthLabel}</span>
+      <div class="wc-nav">
+        <button onclick="event.stopPropagation();S.weekOffset--;renderWeekCal()">‹</button>
+        <button onclick="event.stopPropagation();S.weekOffset=0;renderWeekCal()" style="font-size:.6rem">●</button>
+        <button onclick="event.stopPropagation();S.weekOffset++;renderWeekCal()">›</button>
+      </div>
+    </div>
+    <div class="wc-days" id="wcGrid"></div>`;
+
+  const grid=$('wcGrid');
+  // Day labels: Sat Sun Mon Tue Wed Thu Fri = ش ی د س چ پ ج
+  ['ش','ی','د','س','چ','پ','ج'].forEach(n=>{
+    const h=document.createElement('div');
+    h.className='wc-day-label';
+    h.textContent=n;
+    grid.appendChild(h);
+  });
+
+  for(let i=0;i<7;i++){
+    const d=new Date(weekStart);
+    d.setDate(weekStart.getDate()+i);
+    const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const cell=document.createElement('div');
+    cell.className='wc-day';
+    cell.dataset.date=ds;
+    if(ds===t) cell.classList.add('today');
+    if(d.getDay()===5) cell.classList.add('holiday'); // Friday = holiday
+    if(S.tasks.some(x=>x.date===ds)) cell.classList.add('has-task');
+    cell.innerHTML=`<span>${shamsiDay(d)}</span>`;
+    cell.onclick=function(){
+      // Switch to "all" filter and show tasks for this date
+      document.querySelectorAll('#taskSeg .seg-btn').forEach(b=>b.classList.remove('active'));
+      const allBtn=document.querySelector('#taskSeg .seg-btn[data-f="all"]');
+      if(allBtn) allBtn.classList.add('active');
+      S._jumpDate=ds;
+      renderAllTasks();
+      // Scroll to tasks section
+      setTimeout(()=>{
+        const el=document.querySelector('[data-date-group="'+ds+'"]');
+        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      },150);
+    };
+    grid.appendChild(cell);
+  }
+}
+
+/* ── TAG FILTER CHIPS ── */
+function renderTagChips(){
+  const box=$('tagChips');if(!box)return;
+  const allTags=new Set();
+  S.tasks.forEach(t=>(t.tags||[]).forEach(tg=>allTags.add(tg)));
+  if(allTags.size===0){box.innerHTML='';return;}
+  let html=`<button class="tag-chip ${!S.activeTagFilter?'active':''}" style="${!S.activeTagFilter?'background:var(--gold);':'color:var(--text2);border-color:var(--line)'}" onclick="S.activeTagFilter=null;renderTagChips();renderAllTasks()">همه</button>`;
+  allTags.forEach(tag=>{
+    const def=TAG_DEFS[tag]||{color:'var(--text2)',bg:'rgba(255,255,255,.06)'};
+    const isActive=S.activeTagFilter===tag;
+    html+=`<button class="tag-chip ${isActive?'active':''}" style="${isActive?'background:'+def.color+';':'color:'+def.color+';border-color:'+def.color+';background:'+def.bg}" onclick="S.activeTagFilter='${tag}';renderTagChips();renderAllTasks()">#${tag}</button>`;
+  });
+  box.innerHTML=html;
+}
+
+/* ── GROUPED TASK LIST ── */
+function renderAllTasks(){
+  const f=document.querySelector('#taskSeg .seg-btn.active')?.dataset.f||'today';
+  const t=T(),w=addD(t,7);
+  let list;
+  if(f==='today')list=S.tasks.filter(x=>x.date===t);
+  else if(f==='week')list=S.tasks.filter(x=>x.date>=t&&x.date<=w);
+  else list=[...S.tasks];
+
+  // Tag filter
+  if(S.activeTagFilter) list=list.filter(x=>(x.tags||[]).includes(S.activeTagFilter));
+
+  list.sort((a,b)=>a.date.localeCompare(b.date)||a.priority.localeCompare(b.priority));
+  const box=$('allList');box.innerHTML='';
+
+  if(f==='today'){
+    // Group by list type
+    const groups_order=['work','rel','personal'];
+    const groups={work:[],rel:[],personal:[]};
+    list.forEach(x=>{const g=x.list==='work'?'work':x.list==='rel'?'rel':'personal';groups[g].push(x);});
+    groups_order.forEach(gkey=>{
+      const items=groups[gkey];if(!items.length)return;
+      const gdef=GROUP_DEFS[gkey];
+      const gh=document.createElement('div');gh.className='group-header';
+      gh.innerHTML=`<div class="gh-icon" style="background:${gdef.bg}">${gdef.icon}</div>
+        <span class="gh-label">${gdef.label}</span>
+        <span class="gh-count" style="background:${gdef.bg};color:${gdef.color}">${items.filter(x=>!x.done).length} باز</span>`;
+      box.appendChild(gh);
+      const tl=document.createElement('div');tl.className='task-list';
+      items.forEach(x=>tl.appendChild(makeRow(x,true)));
+      box.appendChild(tl);
+    });
+  } else if(f==='all'){
+    const dateGroups={};
+    list.forEach(x=>{(dateGroups[x.date]=dateGroups[x.date]||[]).push(x);});
+    // highlight jump date from calendar
+    const jump=S._jumpDate||null;
+    Object.keys(dateGroups).sort().forEach(day=>{
+      const isJump=day===jump;
+      const lbl=document.createElement('div');
+      lbl.dataset.dateGroup=day;
+      lbl.style.cssText=`font-size:.68rem;font-weight:700;padding:12px 4px 6px;display:flex;align-items:center;gap:6px;color:${isJump?'var(--gold)':'var(--text3)'}`;
+      const dot=isJump?'<span style="width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block"></span>':'';
+      lbl.innerHTML=dot+(day===t?'📅 امروز':day===addD(t,1)?'➡️ فردا':day);
+      box.appendChild(lbl);
+      const tl=document.createElement('div');tl.className='task-list';
+      if(isJump)tl.style.cssText='border-color:rgba(245,166,35,.3);box-shadow:0 0 0 1px rgba(245,166,35,.2)';
+      dateGroups[day].forEach(x=>tl.appendChild(makeRow(x,true)));
+      box.appendChild(tl);
+    });
+    // scroll to jump date after render
+    if(jump){
+      setTimeout(()=>{
+        const el=document.querySelector('[data-date-group="'+jump+'"]');
+        if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}
+        S._jumpDate=null;
+      },120);
+    }
+  } else {
+    const tl=document.createElement('div');tl.className='task-list';
+    list.forEach(x=>tl.appendChild(makeRow(x,true)));
+    box.appendChild(tl);
+  }
+  $('allEmpty').style.display=list.length?'none':'block';
+}
+
+$('taskSeg').addEventListener('click',e=>{
+  const b=e.target.closest('.seg-btn');if(!b)return;
+  [...$('taskSeg').children].forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');renderAllTasks();
+});
+
+/* ======================================================
+   GOALS
+====================================================== */
+function openGoalSheet(){
+  openSheet('هدف جدید',`
+    <div class="field"><input type="text" id="gTitle" placeholder="عنوان هدف…"></div>
+    <div class="row-flex">
+      <div class="field"><label>بازه</label>
+        <select id="gHor"><option value="3">۳ ماهه</option><option value="6">۶ ماهه</option><option value="12">۱۲ ماهه</option></select>
+      </div>
+      <div class="field"><label>ضرب‌الاجل</label><input type="date" id="gDl"></div>
+    </div>
+    <button class="btn-primary" onclick="confirmAddGoal()">ساخت هدف</button>
+  `);
+}
+function confirmAddGoal(){
+  const title=$('gTitle')?.value.trim();if(!title)return;
+  S.goals.push({id:uid(),title,horizon:$('gHor').value,deadline:$('gDl').value,steps:[]});
+  saveState();closeSheet();renderGoals();
+}
+
+function renderGoals(){
+  const box=$('goalsList');box.innerHTML='';
+  $('goalsEmpty')||null;
+  S.goals.forEach(g=>{
+    const done=g.steps.filter(s=>s.done).length,tot=g.steps.length,pct=tot?Math.round(100*done/tot):0;
+    const card=document.createElement('div');card.className='goal-card';
+    card.innerHTML=`
+      <div class="goal-header">
+        <div><div class="goal-horizon">⏳ ${g.horizon} ماهه${g.deadline?' · '+g.deadline:''}</div>
+        <div class="goal-name">${esc(g.title)}</div></div>
+        <button class="goal-del" onclick="S.goals=S.goals.filter(x=>x.id!=='${g.id}');saveState();renderGoals()">✕</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--text2)">
+        <span>${done} از ${tot} گام</span><span class="goal-pct">${pct}%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div id="st-${g.id}" style="margin-top:8px"></div>
+      <button class="btn-ghost" style="font-size:.75rem;margin-top:8px;padding:9px" onclick="addStep('${g.id}')">+ گام جدید</button>`;
+    const sb=card.querySelector('#st-'+g.id);
+    g.steps.forEach(s=>{
+      const sr=document.createElement('div');sr.className='step-row';
+      sr.innerHTML=`<div class="step-chk${s.done?' done':''}" data-sid="${s.id}"></div>
+        <span class="step-text${s.done?' done':''}">${esc(s.title)}</span>`;
+      sr.querySelector('.step-chk').onclick=()=>{s.done=!s.done;saveState();renderGoals();};
+      sb.appendChild(sr);
+    });
+    box.appendChild(card);
+  });
+}
+function addStep(gid){
+  const t=prompt('عنوان گام:');if(!t)return;
+  S.goals.find(g=>g.id===gid).steps.push({id:uid(),title:t,done:false});
+  saveState();renderGoals();
+}
+
+/* ======================================================
+   CYCLE
+====================================================== */
+function getCycleInfo(){
+  if(!S.cycle)return null;
+  const {lastPeriod,length,period}=S.cycle;
+  if(!lastPeriod)return null;
+  const diff=Math.floor((new Date(T())-new Date(lastPeriod))/86400000);
+  const day=((diff%length)+length)%length+1;
+  const ov=Math.max(length-14,period+1);
+  const fs=Math.max(ov-5,period+1),fe=Math.min(ov+1,length);
+  let phase='luteal';
+  if(day<=period)phase='period';
+  else if(day>=fs&&day<=fe)phase='fertile';
+  else if(length-day+1<=4)phase='pms';
+  return{day,phase,daysToNext:length-day+1,ov,fs,fe,length,period};
+}
+
+function renderCycle(){
+  const ci=getCycleInfo();
+  const sub=$('cycleAccSub');
+  if(!ci){sub.textContent='ثبت نشده';$('cycleDayNum').textContent='--';return;}
+  const labels={period:`روز ${ci.day} پریود`,fertile:'دوره باروری',pms:'نزدیک PMS ⚠️',luteal:`${ci.daysToNext} روز تا پریود`};
+  sub.textContent=labels[ci.phase]||'روز '+ci.day;
+  $('cycleDayNum').textContent=ci.day;
+  $('cycleTag').textContent='روز چرخه';
+  const msgs={period:'مراقب خودت باش 💗',fertile:ci.day===ci.ov?'روز تخمک‌گذاریه 🌿':'دوره باروری',pms:'به PMS نزدیکی — آماده باش',luteal:'همه چیز عادیه ✨'};
+  $('cycleMsg').textContent=msgs[ci.phase];
+  const ring=$('cycleRing');
+  const p1=ci.period/ci.length,p2=(ci.fs-1)/ci.length,p3=ci.fe/ci.length;
+  ring.style.background=`conic-gradient(#E8607A 0 ${p1*360}deg,#A78BFA ${p1*360}deg ${p2*360}deg,#4ECDC4 ${p2*360}deg ${p3*360}deg,#A78BFA ${p3*360}deg 360deg)`;
+  // place daymark
+  document.querySelectorAll('.daymark').forEach(n=>n.remove());
+  const wh=$('cycleWheel'),cx=wh.offsetWidth/2||100,r=cx*.87;
+  const th=((ci.day-1)/ci.length)*2*Math.PI;
+  const x=cx+r*Math.sin(th),y=cx-r*Math.cos(th);
+  const m=document.createElement('div');m.className='daymark';
+  m.style.cssText=`left:${x}px;top:${y}px;background:var(--text);width:14px;height:14px`;
+  wh.appendChild(m);
+}
+function logPeriod(){
+  if(!S.cycle)S.cycle={lastPeriod:T(),length:28,period:6};
+  else S.cycle.lastPeriod=T();
+  saveState();renderCycle();
+}
+function editCycle(){
+  const cur=S.cycle||{length:28,period:6,lastPeriod:''};
+  const l=prompt('طول کل چرخه (روز):',cur.length);
+  if(l===null)return;
+  const p=prompt('طول پریود (روز):',cur.period);
+  if(p===null)return;
+  const d=prompt('تاریخ آخرین پریود (YYYY-MM-DD):',cur.lastPeriod||T());
+  if(!S.cycle)S.cycle={};
+  S.cycle.length=Number(l)||28;
+  S.cycle.period=Number(p)||6;
+  if(d)S.cycle.lastPeriod=d;
+  saveState();renderCycle();
+}
+
+/* ======================================================
+   ACCORDION
+====================================================== */
+const accState={};
+function toggleAcc(name){
+  accState[name]=!accState[name];
+  const body=$(name+'Body'),arrow=$(name+'Arrow');
+  body.classList.toggle('open',!!accState[name]);
+  if(arrow)arrow.classList.toggle('open',!!accState[name]);
+  if(name==='mood'){renderPulse();}
+  if(name==='challenge'){renderChallenge();}
+  if(name==='calendar'){renderCalendarAcc();}
+  if(name==='cycle'){setTimeout(renderCycle,50);}
+  if(name==='memory'){renderMemories();}
+}
+
+/* ======================================================
+   MOOD / PULSE
+====================================================== */
+$('moodScale').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  [...$('moodScale').children].forEach(x=>x.classList.remove('sel'));
+  b.classList.add('sel');
+});
+function saveMood(){
+  const sel=document.querySelector('#moodScale button.sel');
+  if(!sel){alert('یک حس رو انتخاب کن');return;}
+  S.moods=S.moods.filter(m=>m.date!==T());
+  S.moods.push({date:T(),score:Number(sel.dataset.v),note:$('moodNote').value.trim()});
+  $('moodNote').value='';
+  [...$('moodScale').children].forEach(x=>x.classList.remove('sel'));
+  saveState();renderPulse();renderAll();
+}
+function renderPulse(){
+  const bars=$('pulseBars'),labs=$('pulseLabels');
+  if(!bars)return;
+  bars.innerHTML='';labs.innerHTML='';
+  for(let i=13;i>=0;i--){
+    const d=addD(T(),-i),m=S.moods.find(x=>x.date===d);
+    const bar=document.createElement('div');bar.className='pbar';
+    bar.style.height=m?Math.max(8,(m.score/5)*100)+'%':'6px';
+    bar.style.background=m?m.score<=2?'rgba(232,96,122,.5)':m.score<=3?'rgba(245,166,35,.5)':'rgba(107,203,119,.6)':'rgba(255,255,255,.06)';
+    bar.title=d+(m?` — ${['','😞','😕','🙂','😄','🥰'][m.score]}`:' — ثبت نشده');
+    bars.appendChild(bar);
+  }
+  const lbl1=document.createElement('span');lbl1.textContent=addD(T(),-13).slice(5);
+  const lbl2=document.createElement('span');lbl2.textContent='امروز';
+  labs.appendChild(lbl1);labs.appendChild(lbl2);
+  // update acc sub
+  const lm=[...S.moods].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const e={1:'😞',2:'😕',3:'🙂',4:'😄',5:'🥰'};
+  $('moodAccSub').textContent=lm?`آخرین: ${e[lm.score]} — ${lm.date}`:'هنوز ثبت نشده';
+}
+
+/* ======================================================
+   MEMORY
+====================================================== */
+function saveMemory(){
+  const t=$('memTitle').value.trim();if(!t)return;
+  S.memories.push({id:uid(),title:t,date:$('memDate').value||T(),note:$('memNote').value.trim()});
+  $('memTitle').value='';$('memNote').value='';
+  saveState();renderMemories();
+}
+function renderMemories(){
+  const box=$('memList');if(!box)return;box.innerHTML='';
+  $('memAccSub').textContent=S.memories.length?`${S.memories.length} خاطره`:'هنوز ثبت نشده';
+  [...S.memories].reverse().forEach(m=>{
+    const el=document.createElement('div');el.className='mem-item';
+    el.innerHTML=`<div class="mem-date">📍 ${m.date}</div>
+      <div class="mem-title">${esc(m.title)}</div>
+      ${m.note?`<div class="mem-note">${esc(m.note)}</div>`:''}`;
+    box.appendChild(el);
+  });
+}
+function randomMemory(){
+  if(!S.memories.length)return;
+  const m=S.memories[Math.floor(Math.random()*S.memories.length)];
+  openSheet('خاطره تصادفی 🎲',`
+    <div style="text-align:center;padding:10px 0 20px">
+      <div style="font-size:2rem;margin-bottom:8px">📍</div>
+      <div style="font-size:.72rem;color:var(--gold);margin-bottom:6px">${m.date}</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:10px">${esc(m.title)}</div>
+      ${m.note?`<div style="font-size:.84rem;color:var(--text2);line-height:1.7">${esc(m.note)}</div>`:''}
+    </div>
+  `);
+}
+
+/* ======================================================
+   CHALLENGE
+====================================================== */
+function renderChallenge(){
+  const box=$('chContent');if(!box)return;
+  const c=S.challenge;
+  if(!c){
+    box.innerHTML=`
+      <div class="field"><input type="text" id="chTitle" placeholder="عنوان چالش…"></div>
+      <div class="field"><label>هدف (عدد)</label><input type="number" id="chTarget" min="1" placeholder="مثلاً ۵"></div>
+      <button class="btn-primary" onclick="setChallenge()">تنظیم چالش</button>`;
+    return;
+  }
+  $('chAccSub').textContent=`${c.progress}/${c.target} — ${Math.round(100*c.progress/c.target)}%`;
+  const pct=Math.round(100*c.progress/c.target);
+  const dots=Array.from({length:c.target},(_,i)=>`<div class="ch-dot${i<c.progress?' done':''}">${i<c.progress?'✓':i+1}</div>`).join('');
+  const done=c.progress>=c.target;
+  box.innerHTML=`
+    <div style="font-size:.86rem;font-weight:700;margin-bottom:10px">${esc(c.title)}</div>
+    <div class="ch-dots">${dots}</div>
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,#F5A623,#E8607A)"></div></div>
+    <div style="font-size:.68rem;color:var(--gold);margin-top:4px">${pct}%</div>
+    ${done
+      ?'<div style="text-align:center;padding:14px 0;font-size:1.1rem;font-weight:800;color:var(--gold)">🎉 چالش کامل شد!</div>'
+      :`<button class="btn-primary btn-rose" style="margin-top:14px" onclick="bumpChallenge()">+۱ پیشرفت</button>`}
+    <button class="btn-ghost" onclick="S.challenge=null;saveState();renderChallenge()">ریست چالش</button>`;
+}
+function setChallenge(){
+  const t=$('chTitle')?.value.trim(),tg=Number($('chTarget')?.value);
+  if(!t||!tg)return;
+  S.challenge={title:t,target:tg,progress:0};
+  saveState();renderChallenge();
+}
+function bumpChallenge(){
+  if(S.challenge&&S.challenge.progress<S.challenge.target){
+    S.challenge.progress++;
+    if(S.challenge.progress===S.challenge.target)confetti();
+    saveState();renderChallenge();
+  }
+}
+
+/* ======================================================
+   CALENDAR
+====================================================== */
+function renderCalendarAcc(){
+  const box=$('calContent');if(!box)return;
+  const now=new Date();
+  const yr=now.getFullYear(),mo=now.getMonth()+S.calOffset;
+  const d=new Date(yr,mo,1);
+  const lbl=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{month:'long',year:'numeric'}).format(d);
+  const daysInMonth=new Date(yr,mo+1,0).getDate();
+  const firstDay=new Date(yr,mo,1).getDay();
+  const {lastPeriod,length,period}=S.cycle;
+  box.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <button class="btn-ghost" style="width:auto;padding:6px 14px;font-size:.78rem" onclick="S.calOffset--;renderCalendarAcc()">‹</button>
+      <span style="font-size:.86rem;font-weight:700">${lbl}</span>
+      <button class="btn-ghost" style="width:auto;padding:6px 14px;font-size:.78rem" onclick="S.calOffset++;renderCalendarAcc()">›</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px" id="calGrid"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:.62rem;color:var(--text2)">
+      <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-left:3px"></span>کاری</span>
+      <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--rose);margin-left:3px"></span>رابطه</span>
+      <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#E8607A;opacity:.5;margin-left:3px"></span>پریود</span>
+    </div>`;
+  const grid=$('calGrid');
+  ['ش','ج','پ','چ','س','د','ی'].forEach(n=>{
+    const h=document.createElement('div');
+    h.style.cssText='text-align:center;font-size:.6rem;color:var(--text3);padding-bottom:4px';
+    h.textContent=n;grid.appendChild(h);
+  });
+  const pad=(7-(firstDay+1))%7;
+  for(let i=0;i<pad;i++){const c=document.createElement('div');c.style.cssText='aspect-ratio:1;border-radius:6px;background:transparent';grid.appendChild(c);}
+  for(let i=1;i<=daysInMonth;i++){
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+    const cell=document.createElement('div');
+    let bg='var(--card2)';let color='var(--text2)';let fw='400';
+    if(ds===T()){bg='var(--gold)';color='#1C1917';fw='900';}
+    else if(lastPeriod){
+      const diff=Math.floor((new Date(ds)-new Date(lastPeriod))/86400000);
+      const day=((diff%length)+length)%length+1;
+      const ov=Math.max(length-14,period+1),fs=Math.max(ov-5,period+1),fe=Math.min(ov+1,length);
+      if(day>=1&&day<=period)bg='rgba(232,96,122,.25)';
+      else if(day>=fs&&day<=fe)bg='rgba(78,205,196,.18)';
+    }
+    cell.style.cssText=`aspect-ratio:1;border-radius:6px;background:${bg};display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.68rem;font-weight:${fw};color:${color};position:relative;cursor:pointer`;
+    cell.textContent=new Intl.DateTimeFormat('fa-IR',{day:'numeric'}).format(new Date(ds));
+    const dt=S.tasks.filter(t=>t.date===ds);
+    if(dt.some(t=>t.list==='work')){const dot=document.createElement('div');dot.style.cssText='position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:var(--gold)';cell.appendChild(dot);}
+    if(dt.some(t=>t.list==='rel')){const dot=document.createElement('div');dot.style.cssText='position:absolute;top:2px;width:4px;height:4px;border-radius:50%;background:var(--rose)';cell.appendChild(dot);}
+    grid.appendChild(cell);
+  }
+}
+
+/* ======================================================
+   FLOW
+====================================================== */
+const CIRC=2*Math.PI*100;
+let timerHandle=null;
+function updateTimerRing(){
+  const total=S.flow.mode==='focus'?25*60:5*60;
+  const pct=S.flow.left/total;
+  const ring=$('timerRing');
+  if(ring){ring.style.strokeDasharray=CIRC;ring.style.strokeDashoffset=CIRC*(1-pct);}
+}
+const fmt2=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+function tick(){
+  if(S.flow.left<=0){
+    clearInterval(timerHandle);timerHandle=null;
+    S.flow.mode=S.flow.mode==='focus'?'break':'focus';
+    S.flow.left=S.flow.mode==='focus'?25*60:5*60;
+    $('timerMode').textContent=S.flow.mode==='focus'?'آماده تمرکز':'استراحت 🌿';
+  } else { S.flow.left--; }
+  $('timerNum').textContent=fmt2(S.flow.left);
+  updateTimerRing();
+}
+function startTimer(){if(timerHandle)return;$('timerMode').textContent=S.flow.mode==='focus'?'در حال تمرکز ⚡':'استراحت 🌿';timerHandle=setInterval(tick,1000);}
+function pauseTimer(){clearInterval(timerHandle);timerHandle=null;$('timerMode').textContent='مکث شده';}
+function resetTimer(){clearInterval(timerHandle);timerHandle=null;S.flow.mode='focus';S.flow.left=25*60;$('timerNum').textContent='25:00';$('timerMode').textContent='آماده تمرکز';updateTimerRing();}
+function openFlowTaskPicker(){
+  const open=S.tasks.filter(t=>!t.done);
+  if(!open.length){alert('هیچ تسک بازی نداری');return;}
+  openSheet('انتخاب تسک',open.map(t=>`
+    <div style="padding:12px;margin-bottom:8px;background:var(--card);border-radius:var(--r-sm);cursor:pointer;border:1px solid var(--line)" onclick="S.flow.taskId='${t.id}';$('flowTaskName').textContent='${esc(t.title).replace(/'/g,"\\'")}';closeSheet()">
+      ${esc(t.title)}
+    </div>`).join(''));
+}
+function renderHeatmap(){
+  const box=$('flowHeatmap');if(!box)return;box.innerHTML='';
+  for(let i=27;i>=0;i--){
+    const d=addD(T(),-i),dt=S.tasks.filter(t=>t.date===d);
+    const dn=dt.filter(t=>t.done).length,tot=dt.length;
+    const cell=document.createElement('div');cell.className='hcell';
+    if(tot){const op=0.2+(dn/tot)*.8;cell.style.background=`color-mix(in srgb,var(--gold) ${Math.round(op*100)}%,var(--card2))`;}
+    box.appendChild(cell);
+  }
+}
+
+/* ======================================================
+   BOTTOM SHEET
+====================================================== */
+function openSheet(title,bodyHtml){
+  $('sheetTitle').textContent=title;
+  $('sheetBody').innerHTML=bodyHtml;
+  $('sheet').classList.add('open');
+  $('sheetBg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){
+  $('sheet').classList.remove('open');
+  $('sheetBg').classList.remove('open');
+  document.body.style.overflow='';
+}
+let sheetStartY=0;
+$('sheet').addEventListener('touchstart',e=>{sheetStartY=e.touches[0].clientY;});
+$('sheet').addEventListener('touchend',e=>{
+  if(e.changedTouches[0].clientY-sheetStartY>80)closeSheet();
+});
+
+/* ======================================================
+   MONAS
+====================================================== */
+let monasHistory=[],monasLoading=false;
+const MONAS_ENDPOINT='https://monas-proxy.mahdiafra96.workers.dev';
+
+function openMonas(){
+  $('monasSheet').classList.add('open');
+  document.body.style.overflow='hidden';
+  renderMonasCtx();renderMonasSugs();
+}
+function closeMonas(){
+  $('monasSheet').classList.remove('open');
+  document.body.style.overflow='';
+}
+function clearMonas(){
+  monasHistory=[];
+  $('monasMsgs').innerHTML=`
+    <div class="monas-intro">
+      <div class="monas-orb">✨</div>
+      <div class="monas-intro-title">سلام، من مونسم</div>
+      <div class="monas-intro-sub">دستیار هوشمند همیار<br>از رابطه، چرخه، احساسات یا هر چیزی بپرس</div>
+    </div>`;
+  renderMonasSugs();
+}
+
+function buildSysPrompt(){
+  const todays=S.tasks.filter(t=>t.date===T());
+  const ci=getCycleInfo();
+  const lm=[...S.moods].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const rm=[...S.moods].sort((a,b)=>a.date.localeCompare(b.date)).slice(-5);
+  const ml={1:'خیلی بد',2:'بد',3:'معمولی',4:'خوب',5:'عالی'};
+  const ph={period:'پریود',fertile:'باروری',pms:'نزدیک PMS',luteal:'لوتئال'};
+  return `تو مونس هستی — دستیار هوشمند و همراه صمیمی یه اپ مشترک زن و شوهر به فارسی.
+
+شخصیت: باهوش، گرم، کمی شوخ‌طبع، مراقب — مثل یه دوست قدیمی.
+پاسخ: کوتاه و طبیعی (۱-۳ جمله)، فارسی روان، گاهی ایموجی مناسب. مثل دوست حرف بزن نه روان‌پزشک.
+
+وضعیت امروز (${T()}):
+• تسک‌های امروز: ${todays.length} — ${todays.filter(t=>t.done).length} انجام‌شده
+• تسک‌های باز: ${todays.filter(t=>!t.done).map(t=>t.title).join('، ')||'ندارد'}
+• چرخه: ${ci?`روز ${ci.day} — ${ph[ci.phase]||ci.phase}`:'ثبت نشده'}
+• کیف‌سنج اخیر: ${rm.map(m=>`${m.date}:${ml[m.score]}`).join('، ')||'ثبت نشده'}
+• چالش: ${S.challenge?`«${S.challenge.title}» ${S.challenge.progress}/${S.challenge.target}`:'ثبت نشده'}
+• استریک: ${S.streak} روز`;
+}
+
+function renderMonasCtx(){
+  const ci=getCycleInfo();
+  const lm=[...S.moods].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const open=S.tasks.filter(t=>t.date===T()&&!t.done).length;
+  const pills=[];
+  if(ci){const l={period:'🌸 پریود',fertile:'🌿 باروری',pms:'⚠️ PMS',luteal:'🌙 لوتئال'};pills.push(`<span class="mctx mctx-cycle">${l[ci.phase]||'روز '+ci.day}</span>`);}
+  if(lm){const e={1:'😞',2:'😕',3:'🙂',4:'😄',5:'🥰'};pills.push(`<span class="mctx mctx-mood">${e[lm.score]} کیف‌سنج</span>`);}
+  if(open)pills.push(`<span class="mctx mctx-task">✅ ${open} تسک باز</span>`);
+  $('monasCtx').innerHTML=pills.join('');
+}
+
+function renderMonasSugs(){
+  const ci=getCycleInfo();
+  const lm=[...S.moods].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const base=['امروز چه حالی دارم؟','پیشنهاد امشب چیه؟','چطور بهتر کمک کنیم؟'];
+  if(ci?.phase==='pms')base.unshift('PMS چطور مدیریت کنم؟');
+  if(lm?.score<=2)base.unshift('چرا حالم خوب نیست؟');
+  $('monasSugs').innerHTML=base.slice(0,4).map(s=>`<button class="msug" onclick="monasSend('${s}')">${s}</button>`).join('');
+}
+
+function monasSend(text){$('monasInput').value=text;sendMonas();}
+
+function appendBubble(role,text){
+  const box=$('monasMsgs');
+  const intro=box.querySelector('.monas-intro');
+  if(intro){intro.style.opacity='0';intro.style.transition='opacity .25s';setTimeout(()=>intro.remove(),250);}
+  const div=document.createElement('div');div.className=`mbubble ${role}`;
+  const now=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
+  const html=esc(text).replace(/\n/g,'<br>');
+  div.innerHTML=`
+    <div class="bavy${role==='user'?' user':''}">${role==='user'?'👤':'✨'}</div>
+    <div><div class="btext">${html}</div><div class="btime">${now}</div></div>`;
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
+}
+function showTyping(){
+  const box=$('monasMsgs');
+  const d=document.createElement('div');d.className='typing-wrap';d.id='monasTyping';
+  d.innerHTML=`<div class="bavy">✨</div><div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function hideTyping(){const el=$('monasTyping');if(el)el.remove();}
+
+async function sendMonas(){
+  if(monasLoading)return;
+  const inp=$('monasInput');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';inp.style.height='auto';
+  monasLoading=true;$('monasSendBtn').disabled=true;
+  $('monasStatus').textContent='در حال تایپ…';
+  appendBubble('user',text);
+  monasHistory.push({role:'user',content:text});
+  showTyping();
+  try{
+    const headers={'Content-Type':'application/json'};
+    const res=await fetch(MONAS_ENDPOINT,{method:'POST',headers,body:JSON.stringify({
+      model:'claude-sonnet-4-6',max_tokens:1000,
+      system:buildSysPrompt(),messages:monasHistory
+    })});
+    if(!res.ok){
+      const errBody=await res.text().catch(()=>'');
+      throw new Error(`HTTP ${res.status}: ${errBody.slice(0,200)}`);
+    }
+    const data=await res.json();
+    hideTyping();
+    const reply=data.content?.map(b=>b.text||'').join('')||'متأسفم 😕';
+    appendBubble('ai',reply);
+    monasHistory.push({role:'assistant',content:reply});
+  }catch(e){
+    hideTyping();
+    const notConfig=MONAS_ENDPOINT.includes('YOUR-WORKER');
+    let errMsg='🔌 مشکل اتصال — دوباره امتحان کن';
+    if(notConfig) errMsg='⚙️ Worker هنوز تنظیم نشده';
+    else errMsg=`❌ خطا: ${e.message}`;
+    appendBubble('ai',errMsg);
+    console.error('Monas error:',e);
+  }
+  monasLoading=false;$('monasSendBtn').disabled=false;
+  $('monasStatus').textContent='آنلاین · همیشه اینجام';
+}
+function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+
+/* ======================================================
+   CONFETTI
+====================================================== */
+function confetti(){
+  const layer=$('cfLayer');
+  const emojis=['🎉','💛','✨','🌟','💕','🎊'];
+  for(let i=0;i<16;i++){
+    const cf=document.createElement('div');cf.className='cf';
+    cf.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    cf.style.cssText=`left:${Math.random()*100}vw;animation-duration:${1.2+Math.random()*1.2}s;animation-delay:${Math.random()*.3}s;font-size:${.8+Math.random()*.8}rem`;
+    layer.appendChild(cf);
+    cf.addEventListener('animationend',()=>cf.remove());
+  }
+}
+
+/* ======================================================
+   RIPPLE
+====================================================== */
+function addRipple(el){
+  el.addEventListener('click',e=>{
+    const r=document.createElement('div');r.className='ripple';
+    const rect=el.getBoundingClientRect();
+    const size=Math.max(rect.width,rect.height);
+    r.style.cssText=`width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    el.appendChild(r);r.addEventListener('animationend',()=>r.remove());
+  });
+}
+
+/* ======================================================
+   RENDER ALL
+====================================================== */
+function renderAll(){
+  renderHeader();renderNarrative();renderSuggestion();renderToday();
+  renderKPI();renderWeekCal();renderTagChips();renderAllTasks();
+  renderGoals();renderCycle();renderPulse();
+  renderMemories();renderChallenge();
+}
+
+/* ======================================================
+   STREAK AUTO-CALC
+====================================================== */
+function recalcStreak(){
+  // Count consecutive days (going back from yesterday) where all tasks were done
+  let streak=0;
+  for(let i=1;i<=365;i++){
+    const d=addD(T(),-i);
+    const dayTasks=S.tasks.filter(t=>t.date===d);
+    if(!dayTasks.length)break;
+    if(dayTasks.every(t=>t.done))streak++;
+    else break;
+  }
+  S.streak=streak;
+}
+recalcStreak();
+
+/* ======================================================
+   INIT
+====================================================== */
+$('memDate').value=T();
+// accordion: open cycle by default
+toggleAcc('cycle');
+renderAll();
+</script>
+</body>
+</html>
