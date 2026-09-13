@@ -1,0 +1,21 @@
+{
+  "name": "همیار زندگی",
+  "short_name": "همیار",
+  "description": "مدیریت شخصی زندگی، کارها، اهداف و رابطه",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0806",
+  "theme_color": "#0A0806",
+  "dir": "rtl",
+  "lang": "fa",
+  "icons": [
+    {
+      "src": "./logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
