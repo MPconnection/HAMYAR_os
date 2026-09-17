@@ -1,0 +1,3485 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>همیار زندگی</title>
+<meta name="description" content="مدیریت شخصی زندگی، کارها، اهداف و رابطه" />
+<meta name="theme-color" content="#0A0806" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" type="image/svg+xml" href="./logo.svg" />
+<link rel="apple-touch-icon" href="./logo.svg" />
+<script>
+  (function () {
+    try {
+      var prefs = JSON.parse(localStorage.getItem('hamyar_prefs') || '{}');
+      if (prefs.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+  ============================================================ */
+  :root{
+    --bg-base:#0A0806;
+    --bg-elevated:#151009;
+    --surface:#1C160D;
+    --surface-2:#251D12;
+    --surface-hover:#2E2416;
+    --border:#3A2E19;
+    --border-soft:#241C11;
+
+    --accent:#D4AF37;
+    --accent-2:#F1CD6E;
+    --accent-soft:rgba(212,175,55,0.16);
+
+    --rose:#C98A5B;
+    --rose-2:#E8B989;
+    --rose-soft:rgba(201,138,91,0.18);
+
+    --text-primary:#F5EEDC;
+    --text-secondary:#B7AC90;
+    --text-muted:#8B8067;
+
+    --success:#4CB27E;
+    --success-soft:rgba(76,178,126,0.16);
+    --warning:#E0A83A;
+    --warning-soft:rgba(224,168,58,0.16);
+    --danger:#E0685A;
+    --danger-soft:rgba(224,104,90,0.16);
+
+    --glow-1:rgba(212,175,55,0.12);
+    --glow-2:rgba(201,138,91,0.08);
+
+    --radius-sm:10px;
+    --radius-md:16px;
+    --radius-lg:22px;
+    --radius-full:999px;
+
+    --shadow-card:0 1px 0 rgba(255,224,158,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    --shadow-pop:0 20px 60px -20px rgba(0,0,0,0.75);
+
+    --nav-h:64px;
+    --header-h:56px;
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+
+  [data-theme="light"]{
+    --bg-base:#FAF6EC;
+    --bg-elevated:#FFFFFF;
+    --surface:#FFFFFF;
+    --surface-2:#F3ECDA;
+    --surface-hover:#ECE0C4;
+    --border:#E4D7B6;
+    --border-soft:#EFE6D0;
+
+    --accent:#B8860B;
+    --accent-2:#D4AF37;
+    --accent-soft:rgba(184,134,11,0.14);
+
+    --rose:#B5714E;
+    --rose-2:#D9A579;
+    --rose-soft:rgba(181,113,78,0.14);
+
+    --text-primary:#2B2417;
+    --text-secondary:#6B6048;
+    --text-muted:#978C6C;
+
+    --success:#2F9E64;
+    --success-soft:rgba(47,158,100,0.12);
+    --warning:#C98A1B;
+    --warning-soft:rgba(201,138,27,0.12);
+    --danger:#C24B3F;
+    --danger-soft:rgba(194,75,63,0.12);
+
+    --glow-1:rgba(184,134,11,0.10);
+    --glow-2:rgba(181,113,78,0.08);
+
+    --shadow-card:0 1px 0 rgba(255,255,255,0.7) inset, 0 8px 20px -14px rgba(120,90,30,0.22);
+    --shadow-pop:0 20px 50px -20px rgba(120,90,30,0.3);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, var(--glow-1), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, var(--glow-2), transparent 55%),
+      var(--bg-base);
+    color:var(--text-primary);
+    font-family:'Vazirmatn', system-ui, sans-serif;
+    direction:rtl;
+    transition:background-color .25s ease, color .25s ease;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  button, input, textarea, select{ font-family:inherit; }
+  a{ color:inherit; }
+  ::selection{ background:var(--accent-soft); }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--surface-2); border-radius:99px; }
+
+  :focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; border-radius:6px; }
+
+  h1,h2,h3,h4{ margin:0; font-weight:700; letter-spacing:-0.01em; }
+  p{ margin:0; }
+
+  .num{ font-variant-numeric:tabular-nums; }
+
+  /* ============================================================
+     LAYOUT SHELLS
+  ============================================================ */
+  #app-root{ min-height:100%; display:none; }
+  #app-root.ready{ display:block; }
+
+  .app-shell{
+    display:flex;
+    min-height:100vh;
+  }
+
+  .desktop-sidebar{ display:none; }
+
+  .main-col{
+    flex:1;
+    min-width:0;
+    padding-bottom:calc(var(--nav-h) + var(--safe-b) + 24px);
+  }
+
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px;
+    background:linear-gradient(to bottom, var(--bg-base), transparent);
+    backdrop-filter:blur(14px);
+  }
+  .topbar::after{
+    content:''; position:absolute; right:0; left:0; bottom:0; height:1px;
+    background:linear-gradient(90deg, transparent, var(--accent), transparent); opacity:.45;
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:15px; }
+  .topbar .brand .dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent); }
+  .topbar .icon-btn{ }
+
+  .view-container{ padding:6px 18px 18px; max-width:920px; margin:0 auto; width:100%; }
+
+  .bottom-nav{
+    position:fixed; right:0; left:0; bottom:0; z-index:30;
+    height:calc(var(--nav-h) + var(--safe-b));
+    padding-bottom:var(--safe-b);
+    display:flex;
+    background:rgba(16,19,29,0.88);
+    backdrop-filter:blur(18px);
+    border-top:1px solid var(--border-soft);
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    background:none; border:none; color:var(--text-muted); cursor:pointer;
+    font-size:11px; font-weight:500; padding:6px 0 2px;
+    transition:color .15s ease;
+  }
+  .nav-item svg{ width:21px; height:21px; stroke-width:2; transition:transform .15s ease; }
+  .nav-item.active{ color:var(--accent-2); }
+  .nav-item.active svg{ transform:translateY(-1px); }
+
+  /* ============================================================
+     CARDS / PRIMITIVES
+  ============================================================ */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);
+    padding:18px;
+  }
+  .card + .card{ margin-top:14px; }
+  .section-gap{ margin-top:18px; }
+
+  .row{ display:flex; align-items:center; }
+  .between{ justify-content:space-between; }
+  .gap-8{ gap:8px; } .gap-10{ gap:10px; } .gap-12{ gap:12px; } .gap-16{ gap:16px; }
+  .muted{ color:var(--text-secondary); }
+  .faint{ color:var(--text-muted); }
+  .small{ font-size:12.5px; }
+  .tiny{ font-size:11px; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border:none; cursor:pointer; border-radius:var(--radius-md);
+    padding:12px 18px; font-weight:600; font-size:14px;
+    transition:transform .12s ease, opacity .12s ease, background .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{ background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff; }
+  .btn-rose{ background:linear-gradient(135deg, var(--rose), var(--rose-2)); color:#fff; }
+  .btn-ghost{ background:var(--surface-2); color:var(--text-primary); }
+  .btn-outline{ background:transparent; border:1px solid var(--border); color:var(--text-primary); }
+  .btn-danger{ background:var(--danger-soft); color:var(--danger); }
+  .btn-block{ width:100%; }
+  .btn-sm{ padding:8px 14px; font-size:13px; border-radius:var(--radius-sm); }
+  .btn-icon{ width:38px; height:38px; padding:0; border-radius:var(--radius-md); background:var(--surface-2); color:var(--text-primary); }
+  .btn[disabled]{ opacity:.55; pointer-events:none; }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12.5px; color:var(--text-secondary); margin-bottom:7px; font-weight:600; }
+  .input, textarea.input, select.input{
+    width:100%; background:var(--surface-2); border:1px solid var(--border);
+    color:var(--text-primary); border-radius:var(--radius-sm); padding:12px 14px;
+    font-size:14px; outline:none; transition:border-color .15s ease;
+  }
+  .input:focus{ border-color:var(--accent-2); }
+  textarea.input{ resize:vertical; min-height:80px; }
+  .input-row{ display:flex; gap:10px; }
+  .input-row > *{ flex:1; }
+
+  .badge{
+    display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:var(--radius-full);
+    font-size:11.5px; font-weight:600;
+  }
+  .badge-urgent{ background:var(--danger-soft); color:var(--danger); }
+  .badge-important{ background:var(--warning-soft); color:var(--warning); }
+  .badge-normal{ background:var(--surface-2); color:var(--text-secondary); }
+  .badge-success{ background:var(--success-soft); color:var(--success); }
+  .badge-accent{ background:var(--accent-soft); color:var(--accent-2); }
+  .badge-rose{ background:var(--rose-soft); color:var(--rose-2); }
+
+  .progress-track{ height:8px; border-radius:99px; background:var(--surface-2); overflow:hidden; }
+  .progress-fill{ height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .4s ease; }
+  .progress-fill.rose{ background:linear-gradient(90deg,var(--rose),var(--rose-2)); }
+
+  .divider{ height:1px; background:var(--border-soft); border:none; margin:14px 0; }
+
+  .empty-state{ text-align:center; padding:36px 14px; color:var(--text-muted); }
+  .empty-state .emoji{ font-size:34px; display:block; margin-bottom:10px; }
+
+  .skeleton{ position:relative; overflow:hidden; background:var(--surface-2); border-radius:var(--radius-sm); }
+  .skeleton::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    animation:shimmer 1.3s infinite;
+  }
+  @keyframes shimmer{ from{ transform:translateX(-100%);} to{ transform:translateX(100%);} }
+
+  .checkbox{
+    width:22px; height:22px; border-radius:7px; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center; flex:none; cursor:pointer;
+    background:var(--surface-2); transition:all .15s ease;
+  }
+  .checkbox.checked{ background:var(--success); border-color:var(--success); }
+  .checkbox svg{ width:14px; height:14px; color:#0A0C13; opacity:0; transform:scale(.6); transition:all .15s ease; }
+  .checkbox.checked svg{ opacity:1; transform:scale(1); }
+
+  /* Fade/slide transitions */
+  .view-enter{ animation:viewIn .22s ease both; }
+  @keyframes viewIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+
+  /* ============================================================
+     AUTH SCREEN
+  ============================================================ */
+  #auth-screen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .auth-box{ width:100%; max-width:380px; }
+  .auth-logo{ text-align:center; margin-bottom:28px; }
+  .auth-logo .mark{
+    width:72px; height:72px; border-radius:22px; margin:0 auto 14px;
+    box-shadow:0 14px 34px -12px rgba(212,175,55,0.55);
+  }
+  .auth-logo .mark svg{ width:100%; height:100%; display:block; }
+  .auth-tabs{ display:flex; background:var(--surface); border-radius:var(--radius-md); padding:4px; margin-bottom:20px; border:1px solid var(--border-soft); }
+  .auth-tab{ flex:1; text-align:center; padding:10px; border-radius:var(--radius-sm); font-weight:600; font-size:13.5px; color:var(--text-muted); cursor:pointer; background:none; border:none; }
+  .auth-tab.active{ background:var(--surface-2); color:var(--text-primary); }
+  .auth-error{ background:var(--danger-soft); color:var(--danger); border-radius:var(--radius-sm); padding:10px 14px; font-size:13px; margin-bottom:14px; }
+  .auth-link{ text-align:center; margin-top:14px; font-size:13px; color:var(--text-muted); cursor:pointer; }
+  .auth-link span{ color:var(--accent-2); font-weight:600; }
+
+  /* ============================================================
+     TOAST
+  ============================================================ */
+  #toast-stack{
+    position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:0; right:0; z-index:200;
+    display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; padding:0 16px;
+  }
+  .toast{
+    pointer-events:auto;
+    display:flex; align-items:center; gap:10px;
+    background:var(--surface-2); border:1px solid var(--border);
+    color:var(--text-primary); padding:12px 16px; border-radius:var(--radius-md);
+    font-size:13.5px; font-weight:600; box-shadow:var(--shadow-pop);
+    animation:toastIn .25s ease both; max-width:420px;
+  }
+  .toast.success{ border-color:rgba(52,211,153,0.35); }
+  .toast.error{ border-color:rgba(240,99,124,0.4); }
+  .toast.warning{ border-color:rgba(245,184,78,0.4); }
+  .toast .dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .toast.success .dot{ background:var(--success); }
+  .toast.error .dot{ background:var(--danger); }
+  .toast.warning .dot{ background:var(--warning); }
+  .toast.info .dot{ background:var(--accent-2); }
+  @keyframes toastIn{ from{opacity:0; transform:translateY(-10px) scale(.96);} to{opacity:1; transform:translateY(0) scale(1);} }
+  @keyframes toastOut{ to{opacity:0; transform:translateY(-10px) scale(.96);} }
+
+  /* ============================================================
+     MODAL
+  ============================================================ */
+  #modal-layer{ position:fixed; inset:0; z-index:150; display:none; }
+  #modal-layer.open{ display:block; }
+  .modal-backdrop{ position:absolute; inset:0; background:rgba(6,7,12,0.65); backdrop-filter:blur(3px); animation:fadeIn .18s ease; }
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+  .modal-sheet{
+    position:absolute; right:0; left:0; bottom:0; max-height:88vh; overflow-y:auto;
+    background:var(--bg-elevated); border-radius:22px 22px 0 0; padding:18px 18px calc(24px + var(--safe-b));
+    animation:sheetIn .25s cubic-bezier(.2,.8,.3,1) both; border-top:1px solid var(--border-soft);
+  }
+  @keyframes sheetIn{ from{ transform:translateY(100%);} to{ transform:translateY(0);} }
+  .modal-handle{ width:38px; height:4px; background:var(--border); border-radius:99px; margin:0 auto 14px; }
+  .modal-title{ font-size:17px; font-weight:800; margin-bottom:16px; }
+  .modal-actions{ display:flex; gap:10px; margin-top:18px; }
+
+  @media (min-width:720px){
+    .modal-sheet{
+      position:relative; margin:8vh auto; max-width:480px; border-radius:22px;
+      animation:popIn .2s ease both;
+    }
+    @keyframes popIn{ from{opacity:0; transform:scale(.96) translateY(8px);} to{opacity:1; transform:scale(1) translateY(0);} }
+    .modal-backdrop ~ .modal-sheet{}
+  }
+
+  /* ============================================================
+     TODAY VIEW
+  ============================================================ */
+  .greeting{ font-size:19px; font-weight:800; margin-bottom:2px; }
+  .date-line{ color:var(--text-muted); font-size:13px; }
+
+  .stat-ring{ position:relative; width:64px; height:64px; flex:none; }
+  .stat-ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .stat-ring .ring-bg{ fill:none; stroke:var(--surface-2); stroke-width:6; }
+  .stat-ring .ring-fill{ fill:none; stroke:url(#ringGrad); stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset .5s ease; }
+  .stat-ring .ring-text{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; }
+
+  .quick-actions{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  .qa-btn{
+    background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-md);
+    padding:14px 4px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; color:var(--text-primary);
+  }
+  .qa-btn span{ font-size:10.5px; font-weight:600; color:var(--text-secondary); }
+  .qa-btn .emoji{ font-size:19px; }
+
+  .task-mini{ display:flex; align-items:center; gap:12px; padding:10px 0; }
+  .task-mini + .task-mini{ border-top:1px solid var(--border-soft); }
+  .task-mini .title{ font-size:14px; font-weight:600; }
+  .task-mini .title.done{ text-decoration:line-through; color:var(--text-muted); }
+  .task-mini .meta{ font-size:11.5px; color:var(--text-muted); margin-top:2px; }
+
+  .streak-flame{ font-size:22px; }
+
+  /* ============================================================
+     DESKTOP GRID
+  ============================================================ */
+  @media (min-width:900px){
+    .app-shell{ max-width:1180px; margin:0 auto; }
+    .desktop-sidebar{
+      display:flex; flex-direction:column; width:236px; flex:none; padding:22px 16px;
+      border-left:1px solid var(--border-soft); gap:6px; position:sticky; top:0; height:100vh;
+    }
+    .bottom-nav{ display:none; }
+    .main-col{ padding-bottom:32px; }
+    .view-container{ max-width:none; padding:22px 28px; }
+    .sb-brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:16px; padding:8px 10px 22px; }
+    .sb-item{
+      display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:var(--radius-md);
+      color:var(--text-muted); font-weight:600; font-size:14px; cursor:pointer; background:none; border:none; text-align:right;
+    }
+    .sb-item svg{ width:19px; height:19px; }
+    .sb-item.active{ background:var(--accent-soft); color:var(--accent-2); }
+    .today-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:16px; align-items:start; }
+    .today-grid .card{ margin-top:0 !important; }
+    .col-stack{ display:flex; flex-direction:column; gap:16px; }
+    .tasks-grid, .goals-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  }
+
+  /* Week calendar */
+  .week-strip{ display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; }
+  .week-day{
+    flex:1; min-width:44px; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:10px 4px; border-radius:var(--radius-md); background:var(--surface); border:1px solid var(--border-soft);
+    cursor:pointer; color:var(--text-secondary);
+  }
+  .week-day.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff; border-color:transparent; }
+  .week-day .wd-name{ font-size:10.5px; }
+  .week-day .wd-num{ font-size:14px; font-weight:800; }
+  .week-day .wd-dot{ width:5px; height:5px; border-radius:50%; background:var(--rose); }
+
+  /* Filter chips */
+  .chip-row{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; }
+  .chip{
+    flex:none; padding:8px 14px; border-radius:99px; background:var(--surface); border:1px solid var(--border-soft);
+    font-size:12.5px; font-weight:600; color:var(--text-secondary); cursor:pointer; white-space:nowrap;
+  }
+  .chip.active{ background:var(--accent); color:#fff; border-color:transparent; }
+
+  /* Mood face picker */
+  .mood-picker{ display:flex; justify-content:space-between; gap:8px; }
+  .mood-opt{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:12px 4px;
+    border-radius:var(--radius-md); background:var(--surface-2); border:2px solid transparent; cursor:pointer;
+    font-size:24px; color:var(--text-muted);
+  }
+  .mood-opt.selected{ border-color:var(--rose); background:var(--rose-soft); }
+  .mood-opt .lbl{ font-size:10px; font-weight:600; }
+
+  /* Memory cards */
+  .memory-card{ overflow:hidden; padding:0; }
+  .memory-img{ width:100%; height:170px; object-fit:cover; display:block; background:var(--surface-2); }
+  .memory-body{ padding:14px 16px; }
+
+  /* Pomodoro */
+  .pomo-wrap{ display:flex; flex-direction:column; align-items:center; padding:20px 0 6px; }
+  .pomo-ring{ position:relative; width:220px; height:220px; }
+  .pomo-ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .pomo-time{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .pomo-time .t{ font-size:38px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .pomo-time .m{ font-size:12px; color:var(--text-muted); margin-top:4px; }
+  .pomo-controls{ display:flex; gap:10px; margin-top:22px; }
+
+  /* Confetti */
+  .confetti-piece{
+    position:fixed; top:-10px; width:8px; height:14px; z-index:999; pointer-events:none; border-radius:2px;
+    animation:confettiFall 1.1s ease-in forwards;
+  }
+  @keyframes confettiFall{
+    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform:translateY(320px) rotate(340deg); opacity:0; }
+  }
+
+  /* Relationship pairing */
+  .invite-code-box{
+    text-align:center; padding:22px; background:var(--surface-2); border-radius:var(--radius-md);
+    font-size:28px; font-weight:800; letter-spacing:6px; color:var(--accent-2); font-family:monospace, 'Vazirmatn';
+  }
+
+  .avatar{ width:44px; height:44px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-weight:700; overflow:hidden; flex:none; }
+  .avatar img{ width:100%; height:100%; object-fit:cover; }
+  .avatar.lg{ width:76px; height:76px; font-size:24px; }
+
+  .switch{ position:relative; width:44px; height:26px; flex:none; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch .track{ position:absolute; inset:0; background:var(--surface-2); border-radius:99px; cursor:pointer; transition:.2s; border:1px solid var(--border); }
+  .switch .thumb{ position:absolute; top:2px; right:3px; width:20px; height:20px; background:var(--text-muted); border-radius:50%; transition:.2s; }
+  .switch input:checked + .track{ background:var(--accent); border-color:transparent; }
+  .switch input:checked + .track .thumb{ transform:translateX(-18px); background:#fff; }
+
+  .loading-overlay{ position:fixed; inset:0; z-index:300; display:flex; align-items:center; justify-content:center; background:rgba(6,7,12,0.55); backdrop-filter:blur(2px); }
+  .spinner{ width:34px; height:34px; border-radius:50%; border:3px solid var(--surface-2); border-top-color:var(--accent-2); animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .offline-banner{
+    position:fixed; top:0; right:0; left:0; z-index:250; background:var(--danger); color:#fff;
+    text-align:center; padding:9px; font-size:12.5px; font-weight:700; display:none;
+  }
+  .offline-banner.show{ display:block; }
+
+  .cycle-phase-badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; font-weight:700; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div class="offline-banner" id="offline-banner">اتصال به سرور برقرار نیست.</div>
+<div id="toast-stack"></div>
+<div id="modal-layer"></div>
+
+<!-- ================= AUTH SCREEN ================= -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="mark">
+        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="همیار زندگی">
+          <defs>
+            <linearGradient id="authGoldEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F6DE9C"/>
+              <stop offset="45%" stop-color="#D4AF37"/>
+              <stop offset="100%" stop-color="#9C6F16"/>
+            </linearGradient>
+            <linearGradient id="authGoldGlyph" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#F8E7B0"/>
+              <stop offset="100%" stop-color="#D4AF37"/>
+            </linearGradient>
+            <linearGradient id="authPlate" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#241C11"/>
+              <stop offset="100%" stop-color="#120D07"/>
+            </linearGradient>
+          </defs>
+          <rect x="6" y="6" width="244" height="244" rx="64" fill="url(#authGoldEdge)"/>
+          <rect x="18" y="18" width="220" height="220" rx="54" fill="url(#authPlate)"/>
+          <rect x="18.75" y="18.75" width="218.5" height="218.5" rx="53.5" fill="none" stroke="url(#authGoldEdge)" stroke-opacity="0.55" stroke-width="1.5"/>
+          <text x="128" y="167" text-anchor="middle" font-family="Vazirmatn, sans-serif" font-weight="800" font-size="128" fill="url(#authGoldGlyph)">ه</text>
+          <g transform="translate(163,163)">
+            <circle cx="20" cy="20" r="27" fill="url(#authPlate)" stroke="url(#authGoldEdge)" stroke-width="2"/>
+            <path d="M20 30.5 C11 23.7 6 19.2 6 13.8 C6 9.7 9.2 6.5 13.2 6.5 C15.9 6.5 18.2 7.9 20 10.8 C21.8 7.9 24.1 6.5 26.8 6.5 C30.8 6.5 34 9.7 34 13.8 C34 19.2 29 23.7 20 30.5 Z" fill="#C98A5B"/>
+          </g>
+        </svg>
+      </div>
+      <h1 style="font-size:22px;">همیار زندگی</h1>
+      <p class="muted small" style="margin-top:6px;">مدیریت روزها، اهداف و رابطه‌ات</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-authtab="login">ورود</button>
+      <button class="auth-tab" data-authtab="register">ثبت‌نام</button>
+    </div>
+
+    <div id="auth-error" class="auth-error" style="display:none;"></div>
+
+    <form id="login-form" data-authform="login">
+      <div class="field">
+        <label>ایمیل</label>
+        <input class="input" type="email" name="email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>رمز عبور</label>
+        <input class="input" type="password" name="password" required autocomplete="current-password" />
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">ورود</button>
+      <div class="auth-link" data-authtab="forgot">رمزت را فراموش کرده‌ای؟ <span>بازیابی رمز</span></div>
+    </form>
+
+    <form id="register-form" data-authform="register" style="display:none;">
+      <div class="field">
+        <label>نام</label>
+        <input class="input" type="text" name="full_name" required autocomplete="name" />
+      </div>
+      <div class="field">
+        <label>ایمیل</label>
+        <input class="input" type="email" name="email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>رمز عبور</label>
+        <input class="input" type="password" name="password" required minlength="6" autocomplete="new-password" />
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">ساخت حساب</button>
+    </form>
+
+    <form id="forgot-form" data-authform="forgot" style="display:none;">
+      <p class="muted small" style="margin-bottom:14px;">ایمیلت را وارد کن تا لینک بازیابی رمز برایت ارسال شود.</p>
+      <div class="field">
+        <label>ایمیل</label>
+        <input class="input" type="email" name="email" required autocomplete="email" />
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">ارسال لینک بازیابی</button>
+      <div class="auth-link" data-authtab="login">بازگشت به <span>ورود</span></div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= APP ROOT ================= -->
+<div id="app-root">
+  <div class="app-shell">
+
+    <aside class="desktop-sidebar">
+      <div class="sb-brand"><img src="./logo.svg" alt="" style="width:26px;height:26px;border-radius:8px;flex:none;" /> همیار زندگی</div>
+      <button class="sb-item" data-nav="today" data-icon="home"><i data-lucide="home"></i> امروز</button>
+      <button class="sb-item" data-nav="tasks" data-icon="check-square"><i data-lucide="check-square"></i> تسک‌ها</button>
+      <button class="sb-item" data-nav="goals" data-icon="target"><i data-lucide="target"></i> اهداف</button>
+      <button class="sb-item" data-nav="relationship" data-icon="heart"><i data-lucide="heart"></i> رابطه</button>
+      <button class="sb-item" data-nav="settings" data-icon="settings"><i data-lucide="settings"></i> تنظیمات</button>
+    </aside>
+
+    <div class="main-col">
+      <header class="topbar">
+        <div class="brand"><img src="./logo.svg" alt="" style="width:24px;height:24px;border-radius:7px;flex:none;" /> همیار زندگی</div>
+        <button class="btn btn-icon" data-action="open-pomodoro" aria-label="پومودورو"><i data-lucide="timer"></i></button>
+      </header>
+      <main class="view-container" id="view-container">
+        <!-- Views render here -->
+      </main>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-nav="today"><i data-lucide="home"></i>امروز</button>
+    <button class="nav-item" data-nav="tasks"><i data-lucide="check-square"></i>تسک‌ها</button>
+    <button class="nav-item" data-nav="goals"><i data-lucide="target"></i>اهداف</button>
+    <button class="nav-item" data-nav="relationship"><i data-lucide="heart"></i>رابطه</button>
+    <button class="nav-item" data-nav="settings"><i data-lucide="settings"></i>تنظیمات</button>
+  </nav>
+</div>
+
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent)"/>
+      <stop offset="100%" style="stop-color:var(--accent-2)"/>
+    </linearGradient>
+    <linearGradient id="ringGradRose" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" style="stop-color:var(--rose)"/>
+      <stop offset="100%" style="stop-color:var(--rose-2)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<script>
+/* ================================================================
+   CONFIG — این دو مقدار را از پروژه Supabase خودتان قرار دهید
+   (راهنمای کامل در README.md)
+================================================================ */
+const SUPABASE_URL = "https://wjkqttkkeawzcexuzejn.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indqa3F0dGtrZWF3emNleHV6ZWpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyODE4MDMsImV4cCI6MjEwNDg1NzgwM30.Giw40O1CI0-5mvwJjB63ll1P5anXKZ0IT-4i-4Rn9ac";
+</script>
+<script>
+/* ================================================================
+   UTILITIES: Jalali <-> Gregorian, Persian digits, small helpers
+================================================================ */
+const JalaliUtil = (() => {
+  function div(a, b) { return ~~(a / b); }
+  function mod(a, b) { return a - ~~(a / b) * b; }
+
+  function jalCal(jy) {
+    const breaks = [-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+    const bl = breaks.length;
+    const gy = jy + 621;
+    let leapJ = -14, jp = breaks[0], jump = 0;
+    if (jy < jp || jy >= breaks[bl - 1]) throw new Error('Invalid Jalaali year ' + jy);
+    for (let i = 1; i < bl; i += 1) {
+      const jm = breaks[i];
+      jump = jm - jp;
+      if (jy < jm) break;
+      leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
+      jp = jm;
+    }
+    let n = jy - jp;
+    leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
+    if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+    const leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+    const march = 20 + leapJ - leapG;
+    if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
+    let leap = mod(mod(n + 1, 33) - 1, 4);
+    if (leap === -1) leap = 4;
+    return { leap, gy, march };
+  }
+
+  function g2d(gy, gm, gd) {
+    let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
+      + div(153 * mod(gm + 9, 12) + 2, 5) + gd - 34840408;
+    d = d - div(div(gy + div(gm - 8, 6) + 100100, 100) * 3, 4) + 752;
+    return d;
+  }
+  function d2g(jdn) {
+    let j = 4 * jdn + 139361631;
+    j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+    const i = div(mod(j, 1461), 4) * 5 + 308;
+    const gd = div(mod(i, 153), 5) + 1;
+    const gm = mod(div(i, 153), 12) + 1;
+    const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
+    return { gy, gm, gd };
+  }
+  function j2d(jy, jm, jd) {
+    const r = jalCal(jy);
+    return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+  }
+  function d2j(jdn) {
+    const gy = d2g(jdn).gy;
+    let jy = gy - 621;
+    const r = jalCal(jy);
+    const jdn1f = g2d(gy, 3, r.march);
+    let k = jdn - jdn1f;
+    if (k >= 0) {
+      if (k <= 185) return { jy, jm: 1 + div(k, 31), jd: mod(k, 31) + 1 };
+      k -= 186;
+    } else {
+      jy -= 1;
+      k += 179;
+      if (r.leap === 1) k += 1;
+    }
+    return { jy, jm: 7 + div(k, 30), jd: mod(k, 30) + 1 };
+  }
+
+  function toJalali(gy, gm, gd) { return d2j(g2d(gy, gm, gd)); }
+  function toGregorian(jy, jm, jd) { return d2g(j2d(jy, jm, jd)); }
+
+  function fromDate(date) {
+    return toJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  }
+  function toDate(jy, jm, jd) {
+    const g = toGregorian(jy, jm, jd);
+    return new Date(g.gy, g.gm - 1, g.gd);
+  }
+
+  const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+  const WEEKDAYS = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
+  const WEEKDAYS_SHORT = ['ی','د','س','چ','پ','ج','ش'];
+
+  function formatFull(date) {
+    const j = fromDate(date);
+    const wd = WEEKDAYS[date.getDay()];
+    return `${wd} ${Digits.toFa(j.jd)} ${MONTHS[j.jm - 1]} ${Digits.toFa(j.jy)}`;
+  }
+  function formatShort(date) {
+    const j = fromDate(date);
+    return `${Digits.toFa(j.jd)} ${MONTHS[j.jm - 1]}`;
+  }
+  function isoToDate(iso) {
+    if (!iso) return null;
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+  function dateToIso(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  return { toJalali, toGregorian, fromDate, toDate, formatFull, formatShort, isoToDate, dateToIso, MONTHS, WEEKDAYS, WEEKDAYS_SHORT };
+})();
+
+const Digits = {
+  faMap: ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'],
+  toFa(input) {
+    return String(input).replace(/[0-9]/g, (d) => this.faMap[Number(d)]);
+  }
+};
+
+function qs(sel, root = document) { return root.querySelector(sel); }
+function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+function el(html) {
+  const t = document.createElement('template');
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function uid() { return 'id-' + Math.random().toString(36).slice(2, 10); }
+
+/* ================================================================
+   SUPABASE CLIENT — ساخته می‌شود فقط اگر Keyها واقعی و معتبر باشند،
+   تا اگر هنوز تنظیم نشده باشند، بقیه اپ (و دکمه‌ها) از کار نیفتند.
+================================================================ */
+const SUPABASE_CONFIGURED =
+  typeof SUPABASE_URL === 'string' && typeof SUPABASE_ANON_KEY === 'string' &&
+  SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY' &&
+  /^https?:\/\//.test(SUPABASE_URL);
+
+let sb = null;
+if (SUPABASE_CONFIGURED) {
+  try {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true }
+    });
+  } catch (e) {
+    console.error('Supabase createClient failed:', e);
+    sb = null;
+  }
+}
+const CONFIG_ERROR_MSG = 'کلیدهای Supabase هنوز تنظیم نشده‌اند. SUPABASE_URL و SUPABASE_ANON_KEY را در انتهای فایل index.html وارد کنید (به README.md نگاه کنید).';
+function requireSupabase() {
+  if (!sb) throw new Error(CONFIG_ERROR_MSG);
+  return sb;
+}
+
+/* ================================================================
+   TOAST MANAGER
+================================================================ */
+const ToastManager = {
+  show(message, type = 'info', duration = 3200) {
+    const stack = qs('#toast-stack');
+    const icon = { success: 'check-circle', error: 'x-circle', warning: 'alert-triangle', info: 'info' }[type] || 'info';
+    const node = el(`
+      <div class="toast ${type}">
+        <span class="dot"></span>
+        <span>${escapeHtml(message)}</span>
+      </div>
+    `);
+    stack.appendChild(node);
+    setTimeout(() => {
+      node.style.animation = 'toastOut .2s ease forwards';
+      setTimeout(() => node.remove(), 200);
+    }, duration);
+  },
+  success(msg) { this.show(msg, 'success'); },
+  error(msg) { this.show(msg || 'خطایی رخ داد.', 'error'); },
+  warning(msg) { this.show(msg, 'warning'); },
+  info(msg) { this.show(msg, 'info'); }
+};
+
+function friendlyError(err) {
+  if (!err) return 'خطایی رخ داد.';
+  if (!navigator.onLine) return 'اتصال به سرور برقرار نیست.';
+  const msg = err.message || String(err);
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return 'اتصال به سرور برقرار نیست.';
+  if (msg.includes('Invalid login credentials')) return 'ایمیل یا رمز عبور اشتباه است.';
+  if (msg.includes('already registered') || msg.includes('User already registered')) return 'این ایمیل قبلاً ثبت‌نام شده است.';
+  if (msg.includes('کد دعوت')) return msg;
+  if (msg.includes('قبلاً استفاده')) return msg;
+  if (msg.includes('خودتان')) return msg;
+  return msg;
+}
+
+/* ================================================================
+   MODAL MANAGER
+================================================================ */
+const ModalManager = {
+  open(innerHtml) {
+    const layer = qs('#modal-layer');
+    layer.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal"></div>
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        ${innerHtml}
+      </div>
+    `;
+    layer.classList.add('open');
+    if (window.lucide) lucide.createIcons();
+  },
+  close() {
+    const layer = qs('#modal-layer');
+    layer.classList.remove('open');
+    layer.innerHTML = '';
+  }
+};
+
+/* ================================================================
+   LOADING OVERLAY
+================================================================ */
+const Loading = {
+  el: null,
+  show() {
+    if (this.el) return;
+    this.el = el(`<div class="loading-overlay"><div class="spinner"></div></div>`);
+    document.body.appendChild(this.el);
+  },
+  hide() {
+    if (this.el) { this.el.remove(); this.el = null; }
+  }
+};
+
+window.addEventListener('online', () => qs('#offline-banner').classList.remove('show'));
+window.addEventListener('offline', () => qs('#offline-banner').classList.add('show'));
+
+/* ================================================================
+   CONFETTI
+================================================================ */
+function fireConfetti() {
+  const colors = ['#6C5CE7', '#8B7CF6', '#EC5A8B', '#F286AB', '#34D399', '#F5B84E'];
+  for (let i = 0; i < 22; i += 1) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (45 + Math.random() * 10) + 'vw';
+    piece.style.top = (30 + Math.random() * 10) + 'vh';
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = (Math.random() * 0.15) + 's';
+    piece.style.transform = `rotate(${Math.random() * 360}deg) translateX(${(Math.random() - 0.5) * 160}px)`;
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 1300);
+  }
+}
+/* ================================================================
+   GLOBAL STATE
+================================================================ */
+const State = {
+  session: null,
+  user: null,
+  profile: null,
+  relationship: null,
+  partnerProfile: null,
+  tasks: [],
+  tags: [],
+  goals: [],
+  moods: [],
+  partnerMoods: [],
+  memories: [],
+  challenges: [],
+  cycles: [],
+  cycleLogs: [],
+  dailyMessages: [],
+  partnerCycle: null,
+  streak: 0,
+  currentView: 'today',
+  taskFilter: 'all',
+  taskTagFilter: null,
+  taskSearch: '',
+  taskSort: 'newest',
+  goalHorizonFilter: 'all',
+  selectedDate: JalaliUtil.dateToIso(new Date()),
+  memorySearch: '',
+  pomodoro: {
+    mode: 'focus',
+    focusMinutes: 25,
+    breakMinutes: 5,
+    remaining: 25 * 60,
+    running: false,
+    timerId: null,
+    sessionsCompleted: 0,
+    currentTaskId: null
+  },
+  localPrefs: JSON.parse(localStorage.getItem('hamyar_prefs') || '{}')
+};
+
+function saveLocalPrefs() {
+  localStorage.setItem('hamyar_prefs', JSON.stringify(State.localPrefs));
+}
+
+/* ================================================================
+   AUTH MANAGER
+================================================================ */
+const AuthManager = {
+  async init() {
+    if (!sb) {
+      App.showAuthScreen();
+      App.showConfigWarning();
+      return;
+    }
+    const { data } = await sb.auth.getSession();
+    State.session = data.session;
+    State.user = data.session ? data.session.user : null;
+
+    sb.auth.onAuthStateChange((event, session) => {
+      State.session = session;
+      State.user = session ? session.user : null;
+      if (event === 'SIGNED_OUT') {
+        App.showAuthScreen();
+      }
+    });
+
+    if (State.user) {
+      await App.bootAuthenticated();
+    } else {
+      App.showAuthScreen();
+    }
+  },
+
+  async signIn(email, password) {
+    requireSupabase();
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    State.session = data.session;
+    State.user = data.user;
+    return data;
+  },
+
+  async signUp(fullName, email, password) {
+    requireSupabase();
+    const { data, error } = await sb.auth.signUp({
+      email, password,
+      options: { data: { full_name: fullName } }
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  async signOut() {
+    if (!sb) return;
+    await sb.auth.signOut();
+    State.user = null;
+    State.session = null;
+  },
+
+  async resetPassword(email) {
+    requireSupabase();
+    const { error } = await sb.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+  },
+
+  async updatePassword(newPassword) {
+    requireSupabase();
+    const { error } = await sb.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+};
+
+/* ================================================================
+   PROFILE MANAGER
+================================================================ */
+const ProfileManager = {
+  async load() {
+    let { data, error } = await sb.from('profiles').select('*').eq('user_id', State.user.id).maybeSingle();
+    if (error) throw error;
+    if (!data) {
+      // fallback در صورت تأخیر Trigger
+      const ins = await sb.from('profiles').insert({
+        user_id: State.user.id,
+        full_name: State.user.user_metadata?.full_name || ''
+      }).select().single();
+      if (ins.error) throw ins.error;
+      data = ins.data;
+    }
+    State.profile = data;
+    return data;
+  },
+
+  async updateProfile(fields) {
+    const { data, error } = await sb.from('profiles').update(fields).eq('user_id', State.user.id).select().single();
+    if (error) throw error;
+    State.profile = data;
+    return data;
+  },
+
+  async uploadAvatar(file) {
+    const ext = file.name.split('.').pop();
+    const path = `${State.user.id}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+    if (upErr) throw upErr;
+    const { data } = sb.storage.from('avatars').getPublicUrl(path);
+    return data.publicUrl;
+  }
+};
+
+/* ================================================================
+   RELATIONSHIP MANAGER
+================================================================ */
+const RelationshipManager = {
+  async load() {
+    const { data, error } = await sb.from('relationships')
+      .select('*')
+      .or(`user1_id.eq.${State.user.id},user2_id.eq.${State.user.id}`)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error && error.code !== 'PGRST116') throw error;
+    State.relationship = data || null;
+    if (State.relationship && State.relationship.user1_id && State.relationship.user2_id) {
+      await this.loadPartnerProfile();
+    } else {
+      State.partnerProfile = null;
+    }
+    return State.relationship;
+  },
+
+  get partnerId() {
+    if (!State.relationship) return null;
+    const r = State.relationship;
+    if (r.user1_id === State.user.id) return r.user2_id;
+    return r.user1_id;
+  },
+
+  async loadPartnerProfile() {
+    const pid = this.partnerId;
+    if (!pid) { State.partnerProfile = null; return null; }
+    const { data } = await sb.from('profiles').select('*').eq('user_id', pid).maybeSingle();
+    State.partnerProfile = data || null;
+    return State.partnerProfile;
+  },
+
+  async createInvite() {
+    const { data, error } = await sb.rpc('create_relationship');
+    if (error) throw error;
+    State.relationship = data;
+    return data;
+  },
+
+  async joinWithCode(code) {
+    const { data, error } = await sb.rpc('join_relationship', { p_code: code });
+    if (error) throw error;
+    State.relationship = data;
+    await this.loadPartnerProfile();
+    return data;
+  }
+};
+
+/* ================================================================
+   ACTIVITY MANAGER (streaks)
+================================================================ */
+const ActivityManager = {
+  async log(activityType) {
+    try {
+      const today = JalaliUtil.dateToIso(new Date());
+      const { data: existing } = await sb.from('activity_logs')
+        .select('id').eq('user_id', State.user.id).eq('activity_type', activityType).eq('activity_date', today).maybeSingle();
+      if (!existing) {
+        await sb.from('activity_logs').insert({ user_id: State.user.id, activity_type: activityType, activity_date: today });
+      }
+      await this.loadStreak();
+    } catch (e) { /* silent — streak is non-critical */ }
+  },
+
+  async loadStreak() {
+    try {
+      const { data, error } = await sb.rpc('get_streak', { p_user_id: State.user.id });
+      if (!error) State.streak = data || 0;
+    } catch (e) { State.streak = State.streak || 0; }
+    return State.streak;
+  }
+};
+
+/* ================================================================
+   NOTIFICATION MANAGER — یادآوری‌های محلی و رایگان (بدون سرور)
+   نکته: این روش فقط وقتی کار می‌کند که برنامه باز باشد (یا به‌عنوان
+   PWA نصب شده و مرورگر/سیستم‌عامل آن را در پس‌زمینه نگه دارد). برای
+   اعلان واقعی هنگام بسته‌بودن کامل اپ، به Web Push + یک Trigger روی
+   سرور نیاز است که پیچیدگی و نقطه خرابی بیشتری دارد.
+================================================================ */
+const NotificationManager = {
+  checkTimer: null,
+
+  isSupported() { return 'Notification' in window; },
+
+  hasPermission() { return this.isSupported() && Notification.permission === 'granted'; },
+
+  async requestPermission() {
+    if (!this.isSupported()) {
+      ToastManager.error('مرورگر شما از اعلان پشتیبانی نمی‌کند.');
+      return false;
+    }
+    if (Notification.permission === 'granted') return true;
+    if (Notification.permission === 'denied') {
+      ToastManager.error('اعلان‌ها قبلاً از تنظیمات مرورگر مسدود شده‌اند. برای فعال‌سازی باید از تنظیمات سایت در مرورگر، اجازه اعلان را دوباره بدهید.');
+      return false;
+    }
+    try {
+      const result = await Notification.requestPermission();
+      if (result !== 'granted') {
+        ToastManager.warning('اجازه نمایش اعلان داده نشد.');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      ToastManager.error('فعال‌سازی اعلان با خطا مواجه شد.');
+      return false;
+    }
+  },
+
+  startChecking() {
+    if (this.checkTimer || !this.hasPermission()) return;
+    this.checkDueTasks();
+    this.checkTimer = setInterval(() => this.checkDueTasks(), 60 * 1000);
+  },
+
+  stopChecking() {
+    if (this.checkTimer) clearInterval(this.checkTimer);
+    this.checkTimer = null;
+  },
+
+  getNotifiedStore() {
+    const today = JalaliUtil.dateToIso(new Date());
+    let store;
+    try { store = JSON.parse(localStorage.getItem('hamyar_notified') || '{}'); } catch (e) { store = {}; }
+    if (store.date !== today || !Array.isArray(store.ids)) store = { date: today, ids: [] };
+    return store;
+  },
+
+  markNotified(id) {
+    const store = this.getNotifiedStore();
+    store.ids.push(id);
+    localStorage.setItem('hamyar_notified', JSON.stringify(store));
+  },
+
+  checkDueTasks() {
+    if (!this.hasPermission() || !State.localPrefs.notifications) return;
+    const store = this.getNotifiedStore();
+    const now = new Date();
+    const todayIso = JalaliUtil.dateToIso(now);
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    State.tasks.forEach((t) => {
+      if (t.completed || !t.due_date || t.due_date !== todayIso || !t.due_time) return;
+      if (store.ids.includes(t.id)) return;
+      const [h, m] = t.due_time.split(':').map(Number);
+      const dueMinutes = h * 60 + m;
+      if (nowMinutes >= dueMinutes && nowMinutes - dueMinutes <= 5) {
+        this.fire('یادآوری تسک ⏰', t.title);
+        this.markNotified(t.id);
+      }
+    });
+  },
+
+  async fire(title, body) {
+    try {
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(title, { body, icon: './logo.svg', badge: './logo.svg', dir: 'rtl', lang: 'fa' });
+        return;
+      }
+    } catch (e) { /* fall back below */ }
+    try { new Notification(title, { body, icon: './logo.svg' }); } catch (e) { /* silent */ }
+  },
+
+  async sendTest() {
+    const ok = await this.requestPermission();
+    if (!ok) return;
+    State.localPrefs.notifications = true;
+    saveLocalPrefs();
+    this.startChecking();
+    UIManager.renderView();
+    this.fire('همیار زندگی 🤍', 'اعلان‌ها با موفقیت فعال شدند ✓');
+    ToastManager.success('اعلان آزمایشی ارسال شد ✓');
+  },
+
+  notifyIfEnabled(title, body) {
+    if (this.hasPermission() && State.localPrefs.notifications) this.fire(title, body);
+  }
+};
+
+/* ================================================================
+   TASK MANAGER
+================================================================ */
+const TaskManager = {
+  async loadAll() {
+    const { data: tasks, error } = await sb.from('tasks')
+      .select('*, subtasks(*), task_tags(tag_id, tags(id, name))')
+      .eq('user_id', State.user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    State.tasks = (tasks || []).map((t) => ({
+      ...t,
+      subtasks: (t.subtasks || []).sort((a, b) => a.order_index - b.order_index),
+      tagNames: (t.task_tags || []).map((tt) => tt.tags?.name).filter(Boolean)
+    }));
+
+    const { data: tags } = await sb.from('tags').select('*').eq('user_id', State.user.id).order('name');
+    State.tags = tags || [];
+    return State.tasks;
+  },
+
+  async createTask(payload) {
+    const { subtasks = [], tagNames = [], ...taskFields } = payload;
+    const { data: task, error } = await sb.from('tasks').insert({
+      user_id: State.user.id,
+      relationship_id: State.relationship ? State.relationship.id : null,
+      ...taskFields
+    }).select().single();
+    if (error) throw error;
+
+    if (subtasks.length) {
+      const rows = subtasks.map((title, i) => ({ task_id: task.id, title, order_index: i }));
+      await sb.from('subtasks').insert(rows);
+    }
+    if (tagNames.length) {
+      await this.attachTags(task.id, tagNames);
+    }
+    await ActivityManager.log('task');
+    await this.loadAll();
+    return task;
+  },
+
+  async updateTask(id, fields) {
+    const { subtasks, tagNames, ...taskFields } = fields;
+    const { error } = await sb.from('tasks').update(taskFields).eq('id', id);
+    if (error) throw error;
+
+    if (subtasks) {
+      await sb.from('subtasks').delete().eq('task_id', id);
+      if (subtasks.length) {
+        const rows = subtasks.map((title, i) => ({ task_id: id, title, order_index: i }));
+        await sb.from('subtasks').insert(rows);
+      }
+    }
+    if (tagNames) {
+      await sb.from('task_tags').delete().eq('task_id', id);
+      if (tagNames.length) await this.attachTags(id, tagNames);
+    }
+    await this.loadAll();
+  },
+
+  async attachTags(taskId, tagNames) {
+    for (const name of tagNames) {
+      const clean = name.trim().replace(/^#/, '');
+      if (!clean) continue;
+      let { data: tag } = await sb.from('tags').select('*').eq('user_id', State.user.id).eq('name', clean).maybeSingle();
+      if (!tag) {
+        const ins = await sb.from('tags').insert({ user_id: State.user.id, name: clean }).select().single();
+        tag = ins.data;
+      }
+      if (tag) await sb.from('task_tags').insert({ task_id: taskId, tag_id: tag.id });
+    }
+  },
+
+  async deleteTask(id) {
+    const { error } = await sb.from('tasks').delete().eq('id', id);
+    if (error) throw error;
+    State.tasks = State.tasks.filter((t) => t.id !== id);
+  },
+
+  async toggleComplete(id) {
+    const task = State.tasks.find((t) => t.id === id);
+    if (!task) return;
+    const newVal = !task.completed;
+    const { error } = await sb.from('tasks').update({ completed: newVal }).eq('id', id);
+    if (error) throw error;
+    task.completed = newVal;
+    if (newVal) {
+      fireConfetti();
+      await ActivityManager.log('task');
+    }
+  },
+
+  async toggleSubtask(subtaskId, taskId) {
+    const task = State.tasks.find((t) => t.id === taskId);
+    const sub = task?.subtasks.find((s) => s.id === subtaskId);
+    if (!sub) return;
+    const newVal = !sub.completed;
+    const { error } = await sb.from('subtasks').update({ completed: newVal }).eq('id', subtaskId);
+    if (error) throw error;
+    sub.completed = newVal;
+  },
+
+  subtaskProgress(task) {
+    if (!task.subtasks || !task.subtasks.length) return null;
+    const done = task.subtasks.filter((s) => s.completed).length;
+    return { done, total: task.subtasks.length, pct: Math.round((done / task.subtasks.length) * 100) };
+  },
+
+  getFiltered() {
+    let list = [...State.tasks];
+    const todayIso = JalaliUtil.dateToIso(new Date());
+
+    switch (State.taskFilter) {
+      case 'today': list = list.filter((t) => t.due_date === todayIso); break;
+      case 'incomplete': list = list.filter((t) => !t.completed); break;
+      case 'completed': list = list.filter((t) => t.completed); break;
+      case 'urgent': list = list.filter((t) => t.priority === 'urgent'); break;
+      case 'important': list = list.filter((t) => t.priority === 'important'); break;
+      case 'work': list = list.filter((t) => t.list_type === 'work'); break;
+      case 'relationship': list = list.filter((t) => t.list_type === 'relationship'); break;
+      default: break;
+    }
+    if (State.taskTagFilter) {
+      list = list.filter((t) => t.tagNames.includes(State.taskTagFilter));
+    }
+    if (State.taskSearch.trim()) {
+      const q = State.taskSearch.trim().toLowerCase();
+      list = list.filter((t) => t.title.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q));
+    }
+
+    const priorityRank = { urgent: 0, important: 1, normal: 2 };
+    switch (State.taskSort) {
+      case 'deadline':
+        list.sort((a, b) => (a.due_date || '9999') > (b.due_date || '9999') ? 1 : -1); break;
+      case 'priority':
+        list.sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority]); break;
+      case 'incomplete_first':
+        list.sort((a, b) => Number(a.completed) - Number(b.completed)); break;
+      default:
+        list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+    return list;
+  },
+
+  todayStats() {
+    const todayIso = JalaliUtil.dateToIso(new Date());
+    const today = State.tasks.filter((t) => t.due_date === todayIso);
+    const done = today.filter((t) => t.completed).length;
+    return { total: today.length, done, remaining: today.length - done, pct: today.length ? Math.round((done / today.length) * 100) : 0 };
+  }
+};
+
+/* ================================================================
+   GOAL MANAGER
+================================================================ */
+const GoalManager = {
+  async loadAll() {
+    const { data, error } = await sb.from('goals')
+      .select('*, goal_steps(*)')
+      .eq('user_id', State.user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    State.goals = (data || []).map((g) => ({ ...g, goal_steps: (g.goal_steps || []).sort((a, b) => a.order_index - b.order_index) }));
+    return State.goals;
+  },
+
+  async createGoal(payload) {
+    const { steps = [], ...goalFields } = payload;
+    const { data: goal, error } = await sb.from('goals').insert({ user_id: State.user.id, ...goalFields }).select().single();
+    if (error) throw error;
+    if (steps.length) {
+      const rows = steps.map((title, i) => ({ goal_id: goal.id, title, order_index: i }));
+      await sb.from('goal_steps').insert(rows);
+    }
+    await ActivityManager.log('goal');
+    await this.loadAll();
+    return goal;
+  },
+
+  async updateGoal(id, fields) {
+    const { steps, ...goalFields } = fields;
+    const { error } = await sb.from('goals').update(goalFields).eq('id', id);
+    if (error) throw error;
+    if (steps) {
+      await sb.from('goal_steps').delete().eq('goal_id', id);
+      if (steps.length) {
+        const rows = steps.map((title, i) => ({ goal_id: id, title, order_index: i }));
+        await sb.from('goal_steps').insert(rows);
+      }
+    }
+    await this.loadAll();
+  },
+
+  async deleteGoal(id) {
+    const { error } = await sb.from('goals').delete().eq('id', id);
+    if (error) throw error;
+    State.goals = State.goals.filter((g) => g.id !== id);
+  },
+
+  async toggleStep(stepId, goalId) {
+    const goal = State.goals.find((g) => g.id === goalId);
+    const step = goal?.goal_steps.find((s) => s.id === stepId);
+    if (!step) return;
+    const newVal = !step.completed;
+    const { error } = await sb.from('goal_steps').update({ completed: newVal }).eq('id', stepId);
+    if (error) throw error;
+    step.completed = newVal;
+    await ActivityManager.log('goal');
+  },
+
+  progress(goal) {
+    if (!goal.goal_steps || !goal.goal_steps.length) return { done: 0, total: 0, pct: 0 };
+    const done = goal.goal_steps.filter((s) => s.completed).length;
+    return { done, total: goal.goal_steps.length, pct: Math.round((done / goal.goal_steps.length) * 100) };
+  },
+
+  deadlineInfo(goal) {
+    if (!goal.deadline) return null;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dl = JalaliUtil.isoToDate(goal.deadline);
+    const diffDays = Math.round((dl - today) / 86400000);
+    if (diffDays < 0) return { label: 'گذشته', tone: 'danger', icon: '🔴' };
+    if (diffDays <= 5) return { label: `${Digits.toFa(diffDays)} روز باقی مانده`, tone: 'warning', icon: '⚠️' };
+    return { label: `${Digits.toFa(diffDays)} روز باقی مانده`, tone: 'success', icon: '🟢' };
+  },
+
+  getFiltered() {
+    if (State.goalHorizonFilter === 'all') return State.goals;
+    return State.goals.filter((g) => g.horizon === State.goalHorizonFilter);
+  }
+};
+/* ================================================================
+   MOOD MANAGER
+================================================================ */
+const MoodManager = {
+  async loadHistory(days = 14) {
+    const since = new Date(); since.setDate(since.getDate() - (days - 1));
+    const sinceIso = JalaliUtil.dateToIso(since);
+
+    const { data: mine, error } = await sb.from('moods')
+      .select('*').eq('user_id', State.user.id).gte('mood_date', sinceIso).order('mood_date');
+    if (error) throw error;
+    State.moods = mine || [];
+
+    if (RelationshipManager.partnerId) {
+      const { data: theirs } = await sb.from('moods')
+        .select('*').eq('user_id', RelationshipManager.partnerId).eq('is_shared', true)
+        .gte('mood_date', sinceIso).order('mood_date');
+      State.partnerMoods = theirs || [];
+    } else {
+      State.partnerMoods = [];
+    }
+    return State.moods;
+  },
+
+  todayMood() {
+    const today = JalaliUtil.dateToIso(new Date());
+    return State.moods.find((m) => m.mood_date === today) || null;
+  },
+
+  async upsert(mood, note, isShared) {
+    const today = JalaliUtil.dateToIso(new Date());
+    const payload = {
+      user_id: State.user.id,
+      relationship_id: State.relationship ? State.relationship.id : null,
+      mood, note: note || '', is_shared: !!isShared, mood_date: today
+    };
+    const { error } = await sb.from('moods').upsert(payload, { onConflict: 'user_id,mood_date' });
+    if (error) throw error;
+    await ActivityManager.log('mood');
+    await this.loadHistory();
+  }
+};
+
+/* ================================================================
+   MEMORY MANAGER
+================================================================ */
+const MemoryManager = {
+  async loadAll() {
+    if (!State.relationship || !State.relationship.user2_id) { State.memories = []; return []; }
+    const { data, error } = await sb.from('memories')
+      .select('*').eq('relationship_id', State.relationship.id).order('memory_date', { ascending: false });
+    if (error) throw error;
+    State.memories = data || [];
+    return State.memories;
+  },
+
+  async uploadImage(file) {
+    const ext = file.name.split('.').pop();
+    const path = `${State.user.id}/memory-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('memory-images').upload(path, file);
+    if (error) throw error;
+    const { data } = sb.storage.from('memory-images').getPublicUrl(path);
+    return data.publicUrl;
+  },
+
+  async create(payload, file) {
+    let image_url = null;
+    if (file) image_url = await this.uploadImage(file);
+    const { error } = await sb.from('memories').insert({
+      relationship_id: State.relationship.id,
+      created_by: State.user.id,
+      image_url,
+      ...payload
+    });
+    if (error) throw error;
+    await ActivityManager.log('memory');
+    await this.loadAll();
+  },
+
+  async delete(id) {
+    const { error } = await sb.from('memories').delete().eq('id', id);
+    if (error) throw error;
+    State.memories = State.memories.filter((m) => m.id !== id);
+  },
+
+  getFiltered() {
+    if (!State.memorySearch.trim()) return State.memories;
+    const q = State.memorySearch.trim().toLowerCase();
+    return State.memories.filter((m) => m.title.toLowerCase().includes(q) || (m.description || '').toLowerCase().includes(q));
+  }
+};
+
+/* ================================================================
+   CHALLENGE MANAGER
+================================================================ */
+const ChallengeManager = {
+  async loadAll() {
+    if (!State.relationship || !State.relationship.user2_id) { State.challenges = []; return []; }
+    const { data, error } = await sb.from('challenges')
+      .select('*').eq('relationship_id', State.relationship.id).order('start_date', { ascending: false });
+    if (error) throw error;
+    State.challenges = data || [];
+    return State.challenges;
+  },
+
+  async create(payload) {
+    const { error } = await sb.from('challenges').insert({
+      relationship_id: State.relationship.id, created_by: State.user.id, ...payload
+    });
+    if (error) throw error;
+    await this.loadAll();
+  },
+
+  async increment(id) {
+    const c = State.challenges.find((x) => x.id === id);
+    if (!c) return;
+    const newProgress = Math.min(c.progress + 1, c.target);
+    const completed = newProgress >= c.target;
+    const { error } = await sb.from('challenges').update({ progress: newProgress, completed }).eq('id', id);
+    if (error) throw error;
+    c.progress = newProgress; c.completed = completed;
+    if (completed) fireConfetti();
+    await ActivityManager.log('challenge');
+  },
+
+  async delete(id) {
+    const { error } = await sb.from('challenges').delete().eq('id', id);
+    if (error) throw error;
+    State.challenges = State.challenges.filter((c) => c.id !== id);
+  }
+};
+
+/* ================================================================
+   DAILY MESSAGE MANAGER — حداکثر ۳ پیام از هرکس در روز، هر روز از صفر
+================================================================ */
+const DailyMessageManager = {
+  async loadToday() {
+    if (!State.relationship || !State.relationship.user2_id) { State.dailyMessages = []; return []; }
+    const today = JalaliUtil.dateToIso(new Date());
+    const { data, error } = await sb.from('daily_messages')
+      .select('*').eq('relationship_id', State.relationship.id).eq('message_date', today)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    State.dailyMessages = data || [];
+    return State.dailyMessages;
+  },
+
+  myCountToday() { return State.dailyMessages.filter((m) => m.sender_id === State.user.id).length; },
+  remainingToday() { return Math.max(0, 3 - this.myCountToday()); },
+
+  async send(content) {
+    if (this.remainingToday() <= 0) throw new Error('سقف ۳ پیام امروز پر شده — فردا دوباره تلاش کن.');
+    const today = JalaliUtil.dateToIso(new Date());
+    const { error } = await sb.from('daily_messages').insert({
+      relationship_id: State.relationship.id, sender_id: State.user.id, message_date: today, content: content.trim()
+    });
+    if (error) throw error;
+    await ActivityManager.log('message');
+    await this.loadToday();
+  },
+
+  async deleteMine(id) {
+    const { error } = await sb.from('daily_messages').delete().eq('id', id);
+    if (error) throw error;
+    await this.loadToday();
+  }
+};
+
+/* ================================================================
+   CYCLE MANAGER (کاملاً خصوصی مگر share شود)
+================================================================ */
+const CYCLE_DISCLAIMER = 'این اطلاعات برای پیگیری و آموزش سلامت ارائه می‌شود و جایگزین تشخیص یا مشاوره پزشک نیست. زمان تخمک‌گذاری و تاریخ‌های پیش‌بینی‌شده تقریبی هستند و ممکن است بین چرخه‌ها تغییر کنند.';
+const CYCLE_DISCLAIMER_SHORT = 'این محاسبات تقریبی هستند و جایگزین مشاوره پزشکی نیستند.';
+
+function addDaysIso(iso, n) {
+  const d = JalaliUtil.isoToDate(iso); d.setDate(d.getDate() + n);
+  return JalaliUtil.dateToIso(d);
+}
+function jalaliMonthLength(jy, jm) {
+  const nextJy = jm === 12 ? jy + 1 : jy;
+  const nextJm = jm === 12 ? 1 : jm + 1;
+  const g1 = JalaliUtil.toGregorian(jy, jm, 1);
+  const g2 = JalaliUtil.toGregorian(nextJy, nextJm, 1);
+  const d1 = new Date(g1.gy, g1.gm - 1, g1.gd);
+  const d2 = new Date(g2.gy, g2.gm - 1, g2.gd);
+  return Math.round((d2 - d1) / 86400000);
+}
+
+/* ================================================================
+   CYCLE ALGORITHMS — منطق محض محاسبه چرخه قاعدگی (بدون تماس شبکه‌ای)
+   هیچ عدد یا تاریخی Hard Code نشده؛ همه از چرخه‌های واقعی ثبت‌شده
+   توسط کاربر محاسبه می‌شود. تاریخ واقعی همیشه بر پیش‌بینی اولویت دارد.
+================================================================ */
+const CycleAlgorithms = {
+  DEFAULT_CYCLE_LEN: 28,
+  DEFAULT_PERIOD_LEN: 6,
+
+  diffDays(isoA, isoB) {
+    return Math.round((JalaliUtil.isoToDate(isoB) - JalaliUtil.isoToDate(isoA)) / 86400000);
+  },
+
+  sortByStart(cycles) {
+    return [...cycles].sort((a, b) => (a.start_date < b.start_date ? -1 : a.start_date > b.start_date ? 1 : 0));
+  },
+
+  // بعد از هر ثبت/اصلاح/حذف چرخه صدا زده می‌شود تا cycle_length و
+  // period_length همه چرخه‌ها بر اساس تاریخ‌های واقعی از نو محاسبه شود.
+  recalculateAll(cyclesInput) {
+    const cycles = this.sortByStart(cyclesInput).map((c) => ({ ...c }));
+    for (let i = 0; i < cycles.length; i += 1) {
+      const cur = cycles[i];
+      const next = cycles[i + 1];
+      cur.cycle_length = next ? this.diffDays(cur.start_date, next.start_date) : null;
+      cur.period_length = cur.end_date ? this.diffDays(cur.start_date, cur.end_date) + 1 : (cur.period_length || null);
+    }
+    return cycles;
+  },
+
+  getCurrent(cycles) {
+    const sorted = this.sortByStart(cycles);
+    return sorted.length ? sorted[sorted.length - 1] : null;
+  },
+
+  getStats(cycles, maxCount = 6) {
+    const closed = this.sortByStart(cycles).filter((c) => c.cycle_length).slice(-maxCount);
+    if (!closed.length) return { count: 0 };
+    const lengths = closed.map((c) => c.cycle_length);
+    const avg = Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
+    const min = Math.min(...lengths);
+    const max = Math.max(...lengths);
+    const periodLens = closed.filter((c) => c.period_length).map((c) => c.period_length);
+    const periodAvg = periodLens.length ? Math.round(periodLens.reduce((a, b) => a + b, 0) / periodLens.length) : null;
+    return { count: closed.length, avg, min, max, periodAvg, variability: max - min, irregular: (max - min) > 7 };
+  },
+
+  effectiveCycleLength(cycles, manualFallback) {
+    const stats = this.getStats(cycles);
+    return stats.count >= 2 ? stats.avg : (manualFallback || this.DEFAULT_CYCLE_LEN);
+  },
+
+  effectivePeriodLength(cycles, manualFallback) {
+    const stats = this.getStats(cycles);
+    return stats.periodAvg || manualFallback || this.DEFAULT_PERIOD_LEN;
+  },
+
+  getPhase(dayInCycle, cycleLen, periodLen) {
+    const ovulationDay = cycleLen - 14;
+    if (dayInCycle <= periodLen) return 'period';
+    if (dayInCycle < ovulationDay - 1) return 'follicular';
+    if (dayInCycle <= ovulationDay + 1) return 'ovulation';
+    return 'luteal';
+  },
+
+  PHASE_META: {
+    period: {
+      label: 'قاعدگی', emoji: '🩸', color: '#E0685A',
+      description: 'بدن در حال دفع پوشش داخلی رحم است.',
+      symptoms: 'خونریزی، گرفتگی، خستگی و تغییرات خلقی از علائم شایع این روزهاست.'
+    },
+    follicular: {
+      label: 'فولیکولی', emoji: '🌱', color: '#4CB27E',
+      description: 'سطح استروژن به‌تدریج بالا می‌رود و بدن برای تخمک‌گذاری آماده می‌شود.',
+      symptoms: 'معمولاً انرژی و خلق در این بازه بهتر است.'
+    },
+    ovulation: {
+      label: 'تخمک‌گذاری', emoji: '🥚', color: '#D4AF37',
+      description: 'احتمالاً نزدیک زمان تخمک‌گذاری هستی — این تاریخ قطعی نیست و بین چرخه‌ها جابه‌جا می‌شود.',
+      symptoms: 'برخی افراد در این بازه کمی درد یک‌طرفه لگن یا افزایش ترشحات را تجربه می‌کنند.'
+    },
+    luteal: {
+      label: 'لوتئال', emoji: '🌙', color: '#B8860B',
+      description: 'پس از تخمک‌گذاری تا شروع پریود بعدی؛ سطح پروژسترون بالا می‌رود.',
+      symptoms: 'نفخ، حساسیت سینه، تغییر خلق و خستگی (PMS) از علائم شایع این مرحله‌اند.'
+    }
+  },
+
+  getNextPeriodEstimate(startDateIso, cycleLen) {
+    return addDaysIso(startDateIso, cycleLen);
+  },
+
+  getOvulationEstimate(nextPeriodIso, cycleLen) {
+    const center = addDaysIso(nextPeriodIso, -14);
+    return { start: addDaysIso(center, -2), end: addDaysIso(center, 2) };
+  },
+
+  deviationLabel(length, avg) {
+    if (!avg) return null;
+    const diff = length - avg;
+    if (Math.abs(diff) <= 1) return { label: 'معمول', tone: 'success' };
+    return { label: diff < 0 ? 'کوتاه‌تر' : 'طولانی‌تر', tone: 'warning' };
+  },
+
+  // خروجی کامل وضعیت امروز برای چرخه در حال جریان
+  getStatus(currentCycle, cycles) {
+    if (!currentCycle) return null;
+    const cycleLen = this.effectiveCycleLength(cycles, currentCycle.cycle_length);
+    const periodLen = this.effectivePeriodLength(cycles, currentCycle.period_length);
+    const todayIso = JalaliUtil.dateToIso(new Date());
+    const rawDay = this.diffDays(currentCycle.start_date, todayIso) + 1;
+    const dayInCycle = Math.max(rawDay, 1);
+    const isLate = dayInCycle > cycleLen;
+    const effectiveDay = isLate ? cycleLen : dayInCycle;
+    const phase = this.getPhase(effectiveDay, cycleLen, periodLen);
+    const meta = this.PHASE_META[phase];
+
+    const nextPeriodDate = this.getNextPeriodEstimate(currentCycle.start_date, cycleLen);
+    const ovulation = this.getOvulationEstimate(nextPeriodDate, cycleLen);
+    const daysUntilNextPeriod = this.diffDays(todayIso, nextPeriodDate);
+    const stats = this.getStats(cycles);
+
+    return {
+      dayInCycle, effectiveDay, phase, meta, cycleLen, periodLen, isLate,
+      nextPeriodDate, daysUntilNextPeriod,
+      ovulationStart: ovulation.start, ovulationEnd: ovulation.end,
+      stats
+    };
+  }
+};
+
+/* ================================================================
+   CYCLE MANAGER — تاریخچه واقعی چرخه‌ها (نه یک تنظیم ثابت)
+================================================================ */
+const CycleManager = {
+  async loadAll() {
+    const { data, error } = await sb.from('cycles').select('*').eq('user_id', State.user.id).order('start_date', { ascending: true });
+    if (error) throw error;
+    State.cycles = data || [];
+
+    const since = JalaliUtil.dateToIso(new Date(Date.now() - 60 * 86400000));
+    const { data: logs } = await sb.from('cycle_logs').select('*').eq('user_id', State.user.id).gte('log_date', since);
+    State.cycleLogs = logs || [];
+
+    if (RelationshipManager.partnerId) {
+      const { data: theirs } = await sb.from('cycles').select('*').eq('user_id', RelationshipManager.partnerId)
+        .eq('is_shared', true).order('start_date', { ascending: false }).limit(1).maybeSingle();
+      State.partnerCycle = theirs || null;
+    } else {
+      State.partnerCycle = null;
+    }
+    return State.cycles;
+  },
+
+  getCurrent() { return CycleAlgorithms.getCurrent(State.cycles); },
+  getStatus() {
+    const current = this.getCurrent();
+    return current ? CycleAlgorithms.getStatus(current, State.cycles) : null;
+  },
+  getStats(maxCount) { return CycleAlgorithms.getStats(State.cycles, maxCount); },
+
+  todayLog() {
+    const today = JalaliUtil.dateToIso(new Date());
+    return State.cycleLogs.find((l) => l.log_date === today) || null;
+  },
+
+  async persistRecalculated(cycles) {
+    for (const c of cycles) {
+      await sb.from('cycles').update({
+        cycle_length: c.cycle_length, period_length: c.period_length, updated_at: new Date().toISOString()
+      }).eq('id', c.id);
+    }
+  },
+
+  async startNewPeriod(startDateIso, isShared) {
+    const { data: inserted, error } = await sb.from('cycles').insert({
+      user_id: State.user.id, start_date: startDateIso, is_shared: !!isShared
+    }).select().single();
+    if (error) throw error;
+    const recalculated = CycleAlgorithms.recalculateAll([...State.cycles, inserted]);
+    await this.persistRecalculated(recalculated);
+    await ActivityManager.log('cycle');
+    await this.loadAll();
+    return inserted;
+  },
+
+  async correctCycle(id, fields) {
+    const { error } = await sb.from('cycles').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw error;
+    const updatedList = State.cycles.map((c) => (c.id === id ? { ...c, ...fields } : c));
+    const recalculated = CycleAlgorithms.recalculateAll(updatedList);
+    await this.persistRecalculated(recalculated);
+    await this.loadAll();
+  },
+
+  async deleteCycle(id) {
+    const { error } = await sb.from('cycles').delete().eq('id', id);
+    if (error) throw error;
+    const remaining = State.cycles.filter((c) => c.id !== id);
+    const recalculated = CycleAlgorithms.recalculateAll(remaining);
+    await this.persistRecalculated(recalculated);
+    await this.loadAll();
+  },
+
+  async toggleShare(id, isShared) {
+    const { error } = await sb.from('cycles').update({ is_shared: isShared }).eq('id', id);
+    if (error) throw error;
+    await this.loadAll();
+  },
+
+  async saveTodayLog(fields) {
+    const today = JalaliUtil.dateToIso(new Date());
+    const { error } = await sb.from('cycle_logs').upsert(
+      { user_id: State.user.id, log_date: today, ...fields },
+      { onConflict: 'user_id,log_date' }
+    );
+    if (error) throw error;
+    await ActivityManager.log('cycle');
+    await this.loadAll();
+  }
+};
+
+/* ================================================================
+   POMODORO MANAGER
+================================================================ */
+const PomodoroManager = {
+  tick() {
+    const p = State.pomodoro;
+    if (p.remaining > 0) {
+      p.remaining -= 1;
+      UIManager.updatePomodoroDisplay();
+    } else {
+      this.completeSession();
+    }
+  },
+
+  start() {
+    const p = State.pomodoro;
+    if (p.running) return;
+    p.running = true;
+    p.timerId = setInterval(() => this.tick(), 1000);
+  },
+
+  pause() {
+    const p = State.pomodoro;
+    p.running = false;
+    clearInterval(p.timerId);
+  },
+
+  reset() {
+    const p = State.pomodoro;
+    this.pause();
+    p.remaining = (p.mode === 'focus' ? p.focusMinutes : p.breakMinutes) * 60;
+    UIManager.updatePomodoroDisplay();
+  },
+
+  skip() {
+    this.completeSession(true);
+  },
+
+  async completeSession(skipped = false) {
+    const p = State.pomodoro;
+    this.pause();
+    const duration = (p.mode === 'focus' ? p.focusMinutes : p.breakMinutes) * 60 - (skipped ? p.remaining : 0);
+
+    try {
+      await sb.from('pomodoro_sessions').insert({
+        user_id: State.user.id,
+        task_id: p.currentTaskId,
+        duration: Math.max(duration, 0),
+        session_type: p.mode,
+        completed: !skipped,
+        started_at: new Date(Date.now() - duration * 1000).toISOString(),
+        ended_at: new Date().toISOString()
+      });
+    } catch (e) { /* non-critical */ }
+
+    if (p.mode === 'focus' && !skipped) {
+      p.sessionsCompleted += 1;
+      await ActivityManager.log('pomodoro');
+      ToastManager.success('یک Session تمرکز تمام شد! وقت استراحته 🍅');
+      p.mode = 'break';
+    } else if (p.mode === 'break') {
+      ToastManager.info('استراحت تمام شد. آماده برای تمرکز بعدی؟');
+      p.mode = 'focus';
+    } else {
+      p.mode = 'break';
+    }
+    p.remaining = (p.mode === 'focus' ? p.focusMinutes : p.breakMinutes) * 60;
+    UIManager.updatePomodoroDisplay();
+  }
+};
+
+/* ================================================================
+   REALTIME MANAGER — بروزرسانی زنده اطلاعات مشترک رابطه
+================================================================ */
+const RealtimeManager = {
+  channel: null,
+  subscribeToRelationship() {
+    if (!State.relationship || !State.relationship.user2_id) return;
+    if (this.channel) sb.removeChannel(this.channel);
+
+    this.channel = sb.channel('relationship-' + State.relationship.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'moods', filter: `relationship_id=eq.${State.relationship.id}` },
+        () => { MoodManager.loadHistory().then(() => { if (State.currentView === 'today' || State.currentView === 'relationship') UIManager.renderView(); }); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'memories', filter: `relationship_id=eq.${State.relationship.id}` },
+        () => { MemoryManager.loadAll().then(() => { if (State.currentView === 'relationship') UIManager.renderView(); }); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'challenges', filter: `relationship_id=eq.${State.relationship.id}` },
+        () => { ChallengeManager.loadAll().then(() => { if (State.currentView === 'relationship') UIManager.renderView(); }); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'daily_messages', filter: `relationship_id=eq.${State.relationship.id}` },
+        (payload) => {
+          DailyMessageManager.loadToday().then(() => {
+            if (State.currentView === 'relationship') UIManager.renderView();
+            const row = payload.new;
+            if (row && row.sender_id !== State.user.id) {
+              NotificationManager.notifyIfEnabled('پیام جدید از پارتنر 💬', row.content);
+            }
+          });
+        })
+      .subscribe();
+  }
+};
+/* ================================================================
+   UI MANAGER — رندر ویوها
+================================================================ */
+const UIManager = {
+
+  navigate(view) {
+    State.currentView = view;
+    qsa('[data-nav]').forEach((b) => b.classList.toggle('active', b.dataset.nav === view));
+    this.renderView();
+  },
+
+  renderView() {
+    const container = qs('#view-container');
+    let html = '';
+    if (State.currentView === 'today') html = this.renderToday();
+    else if (State.currentView === 'tasks') html = this.renderTasks();
+    else if (State.currentView === 'goals') html = this.renderGoals();
+    else if (State.currentView === 'relationship') html = this.renderRelationship();
+    else if (State.currentView === 'settings') html = this.renderSettings();
+    container.innerHTML = `<div class="view-enter">${html}</div>`;
+    if (window.lucide) lucide.createIcons();
+  },
+
+  ring(pct, size = 64, stroke = 6, gradId = 'ringGrad') {
+    const r = (size - stroke) / 2;
+    const c = 2 * Math.PI * r;
+    const offset = c - (pct / 100) * c;
+    return `
+      <div class="stat-ring" style="width:${size}px;height:${size}px;">
+        <svg viewBox="0 0 ${size} ${size}">
+          <circle class="ring-bg" cx="${size/2}" cy="${size/2}" r="${r}" />
+          <circle class="ring-fill" cx="${size/2}" cy="${size/2}" r="${r}" stroke="url(#${gradId})"
+            stroke-dasharray="${c}" stroke-dashoffset="${offset}" />
+        </svg>
+        <div class="ring-text num">${Digits.toFa(pct)}٪</div>
+      </div>`;
+  },
+
+  /* ---------------- TODAY ---------------- */
+  renderToday() {
+    const name = State.profile?.full_name?.split(' ')[0] || '';
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'صبح بخیر' : hour < 18 ? 'ظهر بخیر' : 'شب بخیر';
+    const stats = TaskManager.todayStats();
+    const todaysTasks = State.tasks.filter((t) => t.due_date === JalaliUtil.dateToIso(new Date())).slice(0, 6);
+    const mood = MoodManager.todayMood();
+    const goalsTop = State.goals.slice(0, 3);
+
+    const left = `
+      <div class="card">
+        <div class="row between">
+          <div>
+            <div class="greeting">${greet}${name ? ' ' + escapeHtml(name) : ''} 👋</div>
+            <div class="date-line">${JalaliUtil.formatFull(new Date())}</div>
+          </div>
+          ${this.ring(stats.pct)}
+        </div>
+        <hr class="divider" />
+        <div class="row between">
+          <div>
+            <div style="font-weight:800;font-size:15px;">امروز</div>
+            <div class="faint small num">${Digits.toFa(stats.total)} تسک</div>
+          </div>
+          <div class="row gap-16">
+            <div style="text-align:center;">
+              <div class="num" style="font-weight:800;color:var(--success);">${Digits.toFa(stats.done)}</div>
+              <div class="tiny faint">انجام‌شده</div>
+            </div>
+            <div style="text-align:center;">
+              <div class="num" style="font-weight:800;color:var(--warning);">${Digits.toFa(stats.remaining)}</div>
+              <div class="tiny faint">باقی‌مانده</div>
+            </div>
+          </div>
+        </div>
+        <div class="progress-track section-gap"><div class="progress-fill" style="width:${stats.pct}%;"></div></div>
+      </div>
+
+      <div class="card row between">
+        <div class="row gap-10">
+          <div class="streak-flame">🔥</div>
+          <div>
+            <div style="font-weight:800;">${Digits.toFa(State.streak)} روز فعال</div>
+            <div class="tiny faint">Streak فعالیت روزانه</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row between" style="margin-bottom:10px;">
+          <div style="font-weight:800;">تسک‌های امروز</div>
+          <button class="btn btn-ghost btn-sm" data-nav="tasks">مشاهده همه</button>
+        </div>
+        ${todaysTasks.length ? todaysTasks.map((t) => this.taskMiniHtml(t)).join('') : `
+          <div class="empty-state"><span class="emoji">🎉</span>هیچ تسکی برای امروز نداری</div>
+        `}
+      </div>
+    `;
+
+    const right = `
+      <div class="card" style="background:linear-gradient(160deg, var(--surface), var(--surface) 60%, var(--rose-soft));">
+        <div class="row between">
+          <div style="font-weight:800;">وضعیت رابطه امروز ❤️</div>
+        </div>
+        ${mood ? `
+          <div class="row gap-10 section-gap">
+            <div style="font-size:26px;">${this.moodEmoji(mood.mood)}</div>
+            <div><div style="font-weight:700;">${Digits.toFa(mood.mood)}/۵</div><div class="tiny faint">امروز ثبت شده</div></div>
+          </div>
+        ` : `
+          <div class="section-gap muted small">امروز حالت چطوره؟</div>
+          <button class="btn btn-rose btn-block section-gap" data-action="open-mood-modal">ثبت Mood</button>
+        `}
+      </div>
+
+      <div class="card row between">
+        <div class="row gap-10">
+          <div style="font-size:20px;">🍅</div>
+          <div style="font-weight:700;">Pomodoro</div>
+        </div>
+        <button class="btn btn-primary btn-sm" data-action="open-pomodoro">شروع تمرکز</button>
+      </div>
+
+      <div class="card">
+        <div class="row between" style="margin-bottom:10px;">
+          <div style="font-weight:800;">پیشرفت اهداف</div>
+          <button class="btn btn-ghost btn-sm" data-nav="goals">مشاهده همه</button>
+        </div>
+        ${goalsTop.length ? goalsTop.map((g) => {
+          const p = GoalManager.progress(g);
+          return `<div style="margin-bottom:12px;">
+            <div class="row between small" style="margin-bottom:6px;"><span>${escapeHtml(g.title)}</span><span class="faint num">${Digits.toFa(p.pct)}٪</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:${p.pct}%;"></div></div>
+          </div>`;
+        }).join('') : `<div class="empty-state small"><span class="emoji">🎯</span>هنوز هدفی ثبت نکرده‌ای</div>`}
+      </div>
+
+      ${this.renderMoodPulseCard(true)}
+    `;
+
+    return `
+      <div class="quick-actions section-gap" style="margin-bottom:14px;">
+        ${this.quickActionBtn('➕', 'تسک جدید', 'open-task-modal')}
+        ${this.quickActionBtn('🎯', 'هدف جدید', 'open-goal-modal')}
+        ${this.quickActionBtn('❤️', 'ثبت Mood', 'open-mood-modal')}
+        ${this.quickActionBtn('📸', 'خاطره جدید', 'open-memory-modal')}
+        ${this.quickActionBtn('🍅', 'پومودورو', 'open-pomodoro')}
+      </div>
+      <div class="today-grid">
+        <div class="col-stack">${left}</div>
+        <div class="col-stack">${right}</div>
+      </div>
+    `;
+  },
+
+  quickActionBtn(emoji, label, action) {
+    return `<button class="qa-btn" data-action="${action}"><span class="emoji">${emoji}</span><span>${label}</span></button>`;
+  },
+
+  moodEmoji(v) { return ['😞','😕','😐','🙂','😍'][v - 1] || '😐'; },
+
+  taskMiniHtml(t) {
+    const p = TaskManager.subtaskProgress(t);
+    return `
+      <div class="task-mini">
+        <div class="checkbox ${t.completed ? 'checked' : ''}" data-action="toggle-task" data-id="${t.id}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;" data-action="open-task-modal" data-id="${t.id}">
+          <div class="title ${t.completed ? 'done' : ''}">${escapeHtml(t.title)}</div>
+          <div class="meta">${t.due_time ? Digits.toFa(t.due_time.slice(0,5)) + ' · ' : ''}${p ? `${Digits.toFa(p.done)}/${Digits.toFa(p.total)} مرحله · ` : ''}${this.priorityDot(t.priority)}</div>
+        </div>
+      </div>
+    `;
+  },
+
+  priorityDot(p) { return { urgent: '🔴 فوری', important: '🟠 مهم', normal: '⚪ عادی' }[p] || ''; },
+
+  /* ---------------- DAILY MESSAGES ---------------- */
+  renderDailyMessagesCard() {
+    if (!State.relationship || !State.relationship.user2_id) return '';
+    const messages = State.dailyMessages;
+    const remaining = DailyMessageManager.remainingToday();
+    return `
+      <div class="card">
+        <div class="row between">
+          <div style="font-weight:800;">💬 پیام‌های امروز</div>
+          <span class="tiny faint num">${Digits.toFa(remaining)} پیام دیگه داری</span>
+        </div>
+        <div class="section-gap" id="daily-messages-list" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;">
+          ${messages.length ? messages.map((m) => this.dailyMessageBubbleHtml(m)).join('') : `<div class="empty-state small"><span class="emoji">💬</span>امروز هنوز پیامی رد و بدل نشده</div>`}
+        </div>
+        <form id="daily-message-form" class="row gap-8 section-gap">
+          <input class="input" name="content" placeholder="${remaining > 0 ? 'یه پیام کوتاه بنویس...' : 'پیام امروزت تموم شده'}" maxlength="300" ${remaining <= 0 ? 'disabled' : ''} />
+          <button type="submit" class="btn btn-rose btn-icon" ${remaining <= 0 ? 'disabled' : ''} aria-label="ارسال"><i data-lucide="send"></i></button>
+        </form>
+        <div class="tiny faint section-gap">هر روز از صفر شروع می‌شود؛ هرکدام حداکثر ۳ پیام در روز.</div>
+      </div>
+    `;
+  },
+
+  dailyMessageBubbleHtml(m) {
+    const mine = m.sender_id === State.user.id;
+    const time = Digits.toFa(new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+    const bubbleStyle = mine
+      ? 'background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-bottom-right-radius:4px;'
+      : 'background:var(--surface-2);color:var(--text-primary);border-bottom-left-radius:4px;';
+    return `
+      <div style="display:flex;justify-content:${mine ? 'flex-start' : 'flex-end'};">
+        <div style="max-width:78%;padding:9px 13px;border-radius:15px;${bubbleStyle}">
+          <div class="small">${escapeHtml(m.content)}</div>
+          <div class="tiny" style="margin-top:3px;opacity:.75;">${time}</div>
+        </div>
+      </div>
+    `;
+  },
+
+  /* ---------------- MOOD PULSE ---------------- */
+  renderMoodPulseCard(compact = false) {
+    const days = 14;
+    const dates = [];
+    for (let i = days - 1; i >= 0; i -= 1) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      dates.push(JalaliUtil.dateToIso(d));
+    }
+    const mine = dates.map((d) => { const m = State.moods.find((x) => x.mood_date === d); return m ? m.mood : null; });
+    const theirs = dates.map((d) => { const m = State.partnerMoods.find((x) => x.mood_date === d); return m ? m.mood : null; });
+
+    const mineCount = mine.filter((v) => v !== null).length;
+    const theirsCount = theirs.filter((v) => v !== null).length;
+    const hasAny = mineCount > 0 || theirsCount > 0;
+
+    const w = 300, h = 110, pad = 14;
+    const stepX = (w - pad * 2) / (days - 1);
+    const yFor = (v) => h - pad - ((v - 1) / 4) * (h - pad * 2);
+
+    // فقط روزهای واقعاً پشت‌سرهم را با خط وصل کن — روزهای بدون داده نباید
+    // با یک خط گمراه‌کننده به دورترین روز بعدی وصل شوند.
+    const segmentsFor = (arr) => {
+      const segs = []; let cur = [];
+      arr.forEach((v, i) => {
+        if (v === null) { if (cur.length) segs.push(cur); cur = []; }
+        else cur.push([pad + i * stepX, yFor(v)]);
+      });
+      if (cur.length) segs.push(cur);
+      return segs;
+    };
+    const dotsFor = (arr) => arr.map((v, i) => (v === null ? null : { x: pad + i * stepX, y: yFor(v) })).filter(Boolean);
+
+    const lineSvg = (segs, gradId, dashed) => segs.filter((s) => s.length > 1).map((seg) => {
+      const pts = seg.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+      return `<polyline points="${pts}" fill="none" stroke="url(#${gradId})" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" ${dashed ? 'stroke-dasharray="4 3"' : ''} />`;
+    }).join('');
+    const dotSvg = (dots, color) => dots.map((d) => `<circle cx="${d.x.toFixed(1)}" cy="${d.y.toFixed(1)}" r="3.2" fill="${color}" />`).join('');
+
+    const firstLabel = JalaliUtil.formatShort(JalaliUtil.isoToDate(dates[0]));
+    const lastLabel = JalaliUtil.formatShort(JalaliUtil.isoToDate(dates[dates.length - 1]));
+
+    const svg = hasAny ? `
+      <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:${h}px;">
+        <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="var(--border-soft)" stroke-width="1" />
+        <text x="${pad}" y="12" font-size="9" fill="var(--text-muted)">😍</text>
+        <text x="${pad}" y="${h - 2}" font-size="9" fill="var(--text-muted)">😞</text>
+        ${lineSvg(segmentsFor(mine), 'ringGrad', false)}
+        ${lineSvg(segmentsFor(theirs), 'ringGradRose', true)}
+        ${dotSvg(dotsFor(mine), 'var(--accent-2)')}
+        ${dotSvg(dotsFor(theirs), 'var(--rose-2)')}
+      </svg>
+      <div class="row between tiny faint" style="margin-top:2px;"><span>${firstLabel}</span><span>${lastLabel}</span></div>
+      ${(mineCount < 3 && theirsCount < 3) ? `<div class="tiny faint" style="margin-top:6px;">برای دیدن یک روند واضح‌تر، چند روز دیگر هم Mood ثبت کنید.</div>` : ''}
+    ` : `<div class="empty-state small"><span class="emoji">📈</span>هنوز داده‌ای برای نمودار نیست</div>`;
+
+    return `
+      <div class="card">
+        <div class="row between" style="margin-bottom:8px;">
+          <div style="font-weight:800;">❤️ Relationship Pulse</div>
+          <div class="tiny faint">۱۴ روز اخیر</div>
+        </div>
+        ${svg}
+        ${hasAny ? `<div class="row gap-16 tiny faint" style="margin-top:8px;">
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-2);margin-left:4px;"></span>شما</span>
+          ${RelationshipManager.partnerId ? `<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--rose-2);margin-left:4px;"></span>پارتنر</span>` : ''}
+        </div>` : ''}
+      </div>
+    `;
+  },
+
+  /* ---------------- TASKS ---------------- */
+  renderTasks() {
+    const filters = [
+      ['all','همه'], ['today','امروز'], ['incomplete','انجام نشده'], ['completed','انجام شده'],
+      ['urgent','فوری'], ['important','مهم'], ['work','کاری'], ['relationship','رابطه']
+    ];
+    const list = TaskManager.getFiltered();
+
+    return `
+      <div class="row between" style="margin-bottom:14px;">
+        <h2>تسک‌ها</h2>
+        <button class="btn btn-primary btn-sm" data-action="open-task-modal"><i data-lucide="plus" style="width:16px;height:16px;"></i>تسک جدید</button>
+      </div>
+
+      ${this.renderWeekStrip()}
+
+      <div class="card" style="margin-top:14px;">
+        <input class="input" placeholder="جستجوی تسک..." value="${escapeHtml(State.taskSearch)}" data-action="task-search" />
+      </div>
+
+      <div class="chip-row section-gap">
+        ${filters.map(([k,l]) => `<div class="chip ${State.taskFilter===k?'active':''}" data-action="set-task-filter" data-value="${k}">${l}</div>`).join('')}
+      </div>
+
+      ${State.tags.length ? `<div class="chip-row" style="margin-top:8px;">
+        <div class="chip ${!State.taskTagFilter?'active':''}" data-action="set-tag-filter" data-value="">همه تگ‌ها</div>
+        ${State.tags.map((t) => `<div class="chip ${State.taskTagFilter===t.name?'active':''}" data-action="set-tag-filter" data-value="${escapeHtml(t.name)}">#${escapeHtml(t.name)}</div>`).join('')}
+      </div>` : ''}
+
+      <div class="row between section-gap">
+        <span class="tiny faint">${Digits.toFa(list.length)} تسک</span>
+        <select class="input" style="width:auto;padding:6px 10px;font-size:12.5px;" data-action="set-task-sort">
+          <option value="newest" ${State.taskSort==='newest'?'selected':''}>جدیدترین</option>
+          <option value="deadline" ${State.taskSort==='deadline'?'selected':''}>Deadline نزدیک‌تر</option>
+          <option value="priority" ${State.taskSort==='priority'?'selected':''}>Priority</option>
+          <option value="incomplete_first" ${State.taskSort==='incomplete_first'?'selected':''}>انجام نشده اول</option>
+        </select>
+      </div>
+
+      <div class="section-gap tasks-grid">
+        ${list.length ? list.map((t) => this.taskCardHtml(t)).join('') : `<div class="empty-state" style="grid-column:1/-1;"><span class="emoji">🗒️</span>تسکی پیدا نشد</div>`}
+      </div>
+    `;
+  },
+
+  renderWeekStrip() {
+    const today = new Date();
+    const start = new Date(today); start.setDate(today.getDate() - today.getDay());
+    let html = '';
+    for (let i = 0; i < 7; i += 1) {
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const iso = JalaliUtil.dateToIso(d);
+      const j = JalaliUtil.fromDate(d);
+      const isToday = iso === JalaliUtil.dateToIso(today);
+      const hasTasks = State.tasks.some((t) => t.due_date === iso);
+      html += `
+        <div class="week-day ${State.selectedDate === iso ? 'active' : ''}" data-action="select-date" data-value="${iso}">
+          <span class="wd-name">${JalaliUtil.WEEKDAYS_SHORT[d.getDay()]}</span>
+          <span class="wd-num num">${Digits.toFa(j.jd)}</span>
+          ${hasTasks ? '<span class="wd-dot"></span>' : '<span style="width:5px;height:5px;"></span>'}
+        </div>`;
+    }
+    return `<div class="week-strip">${html}</div>`;
+  },
+
+  taskCardHtml(t) {
+    const p = TaskManager.subtaskProgress(t);
+    return `
+      <div class="card" style="margin-top:0;">
+        <div class="row gap-12" style="align-items:flex-start;">
+          <div class="checkbox ${t.completed?'checked':''}" data-action="toggle-task" data-id="${t.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div style="flex:1;min-width:0;cursor:pointer;" data-action="open-task-modal" data-id="${t.id}">
+            <div class="title ${t.completed?'done':''}" style="font-weight:700;">${escapeHtml(t.title)}</div>
+            ${t.description ? `<div class="small faint" style="margin-top:3px;">${escapeHtml(t.description)}</div>` : ''}
+            <div class="row gap-8" style="flex-wrap:wrap;margin-top:8px;">
+              <span class="badge badge-${t.priority}">${this.priorityDot(t.priority)}</span>
+              ${t.due_date ? `<span class="badge badge-normal">${JalaliUtil.formatShort(JalaliUtil.isoToDate(t.due_date))}</span>` : ''}
+              ${t.list_type === 'relationship' ? `<span class="badge badge-rose">❤️ رابطه</span>` : `<span class="badge badge-accent">💼 کاری</span>`}
+              ${t.tagNames.map((tag) => `<span class="badge badge-normal">#${escapeHtml(tag)}</span>`).join('')}
+            </div>
+            ${p ? `<div class="progress-track" style="margin-top:10px;"><div class="progress-fill" style="width:${p.pct}%;"></div></div>` : ''}
+          </div>
+          <button class="btn btn-icon btn-sm" style="width:30px;height:30px;" data-action="delete-task" data-id="${t.id}"><i data-lucide="trash-2" style="width:15px;height:15px;"></i></button>
+        </div>
+      </div>
+    `;
+  },
+
+  /* ---------------- GOALS ---------------- */
+  renderGoals() {
+    const horizons = [['all','همه'],['1m','۱ ماهه'],['3m','۳ ماهه'],['6m','۶ ماهه'],['12m','۱۲ ماهه']];
+    const list = GoalManager.getFiltered();
+    return `
+      <div class="row between" style="margin-bottom:14px;">
+        <h2>اهداف</h2>
+        <button class="btn btn-primary btn-sm" data-action="open-goal-modal"><i data-lucide="plus" style="width:16px;height:16px;"></i>هدف جدید</button>
+      </div>
+      <div class="chip-row">
+        ${horizons.map(([k,l]) => `<div class="chip ${State.goalHorizonFilter===k?'active':''}" data-action="set-goal-horizon" data-value="${k}">${l}</div>`).join('')}
+      </div>
+      <div class="section-gap goals-grid">
+        ${list.length ? list.map((g) => this.goalCardHtml(g)).join('') : `<div class="empty-state" style="grid-column:1/-1;"><span class="emoji">🎯</span>هنوز هدفی نساخته‌ای</div>`}
+      </div>
+    `;
+  },
+
+  goalCardHtml(g) {
+    const p = GoalManager.progress(g);
+    const dl = GoalManager.deadlineInfo(g);
+    const horizonLabel = { '1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','12m':'۱۲ ماهه' }[g.horizon];
+    return `
+      <div class="card" style="margin-top:0;cursor:pointer;" data-action="open-goal-modal" data-id="${g.id}">
+        <div class="row between">
+          <div style="font-weight:800;">${escapeHtml(g.title)}</div>
+          <button class="btn btn-icon btn-sm" style="width:28px;height:28px;" data-action="delete-goal" data-id="${g.id}" data-stop="1"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+        </div>
+        ${g.description ? `<div class="small faint" style="margin-top:4px;">${escapeHtml(g.description)}</div>` : ''}
+        <div class="row gap-8" style="margin-top:10px;">
+          <span class="badge badge-accent">${horizonLabel}</span>
+          ${dl ? `<span class="badge badge-${dl.tone === 'danger' ? 'urgent' : dl.tone === 'warning' ? 'important' : 'success'}">${dl.icon} ${dl.label}</span>` : ''}
+        </div>
+        <div class="row between small" style="margin-top:12px;margin-bottom:6px;">
+          <span class="faint">${Digits.toFa(p.done)} از ${Digits.toFa(p.total)} مرحله انجام شده</span>
+          <span class="num" style="font-weight:800;">${Digits.toFa(p.pct)}٪</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:${p.pct}%;"></div></div>
+      </div>
+    `;
+  },
+
+  /* ---------------- RELATIONSHIP ---------------- */
+  renderRelationship() {
+    if (!State.relationship) {
+      return this.renderPairingScreen();
+    }
+    if (!State.relationship.user2_id) {
+      return this.renderPairingScreen(State.relationship.invite_code);
+    }
+
+    const memories = MemoryManager.getFiltered();
+    const cycleStatus = CycleManager.getStatus();
+
+    return `
+      <h2 style="margin-bottom:14px;">رابطه ❤️</h2>
+
+      <div class="card row gap-12">
+        <div class="avatar lg">${State.partnerProfile?.avatar_url ? `<img src="${State.partnerProfile.avatar_url}"/>` : '❤️'}</div>
+        <div>
+          <div style="font-weight:800;">${escapeHtml(State.partnerProfile?.full_name || 'پارتنر')}</div>
+          <div class="tiny faint">به هم متصل هستید</div>
+        </div>
+      </div>
+
+      ${this.renderMoodPulseCard()}
+
+      ${this.renderDailyMessagesCard()}
+
+      <div class="card">
+        <div class="row between"><div style="font-weight:800;">📸 خاطرات ما</div>
+          <button class="btn btn-ghost btn-sm" data-action="open-memory-modal">افزودن</button>
+        </div>
+        <input class="input section-gap" placeholder="جستجوی خاطره..." value="${escapeHtml(State.memorySearch)}" data-action="memory-search" />
+        <div class="section-gap" style="display:flex;flex-direction:column;gap:12px;">
+          ${memories.length ? memories.map((m) => this.memoryCardHtml(m)).join('') : `<div class="empty-state"><span class="emoji">❤️</span>هنوز خاطره‌ای ثبت نکرده‌اید</div>`}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row between"><div style="font-weight:800;">❤️ چالش‌های مشترک</div>
+          <button class="btn btn-ghost btn-sm" data-action="open-challenge-modal">افزودن</button>
+        </div>
+        <div class="section-gap" style="display:flex;flex-direction:column;gap:12px;">
+          ${State.challenges.length ? State.challenges.map((c) => this.challengeCardHtml(c)).join('') : `<div class="empty-state"><span class="emoji">🏆</span>هنوز چالشی نساخته‌اید</div>`}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row between"><div style="font-weight:800;">🌙 Cycle Tracker</div>
+          <button class="btn btn-ghost btn-sm" data-action="open-cycle-modal">${cycleStatus ? 'مشاهده کامل' : 'فعال‌سازی'}</button>
+        </div>
+        ${cycleStatus ? `
+          <div class="section-gap row between">
+            <span class="cycle-phase-badge badge-rose">${cycleStatus.meta.emoji} ${cycleStatus.meta.label}</span>
+            <span class="tiny faint">روز ${Digits.toFa(cycleStatus.dayInCycle)} چرخه</span>
+          </div>
+          <div class="small faint section-gap">پریود بعدی (تخمینی): ${JalaliUtil.formatShort(JalaliUtil.isoToDate(cycleStatus.nextPeriodDate))} · تخمک‌گذاری: ${JalaliUtil.formatShort(JalaliUtil.isoToDate(cycleStatus.ovulationStart))} تا ${JalaliUtil.formatShort(JalaliUtil.isoToDate(cycleStatus.ovulationEnd))}</div>
+        ` : `<div class="empty-state small"><span class="emoji">🌙</span>هنوز فعال نشده — کاملاً اختیاری و خصوصی است</div>`}
+        <div class="tiny faint section-gap">${CYCLE_DISCLAIMER_SHORT}</div>
+      </div>
+    `;
+  },
+
+  renderPairingScreen(inviteCode) {
+    return `
+      <h2 style="margin-bottom:14px;">رابطه ❤️</h2>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:34px;">💞</div>
+        <div style="font-weight:800;margin-top:8px;">هنوز به پارتنرت متصل نشده‌ای</div>
+        <div class="small faint" style="margin-top:6px;">یک کد بساز و برای پارتنرت بفرست، یا کد او را وارد کن.</div>
+
+        ${inviteCode ? `
+          <div class="invite-code-box section-gap num">${Digits.toFa(inviteCode)}</div>
+          <div class="tiny faint" style="margin-top:8px;">این کد را برای پارتنرت بفرست</div>
+        ` : `
+          <button class="btn btn-primary btn-block section-gap" data-action="create-invite">ساخت کد دعوت</button>
+        `}
+
+        <hr class="divider" />
+
+        <div class="field" style="text-align:right;">
+          <label>کد دعوت پارتنر را وارد کن</label>
+          <div class="input-row">
+            <input class="input" id="join-code-input" placeholder="مثلاً A1B2C3" maxlength="6" style="text-transform:uppercase;" />
+            <button class="btn btn-rose" data-action="join-invite" style="flex:none;">اتصال</button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  memoryCardHtml(m) {
+    return `
+      <div class="card memory-card" style="margin-top:0;">
+        ${m.image_url ? `<img class="memory-img" src="${m.image_url}" alt="${escapeHtml(m.title)}" />` : ''}
+        <div class="memory-body">
+          <div class="row between">
+            <div style="font-weight:800;">${escapeHtml(m.title)}</div>
+            <button class="btn btn-icon btn-sm" style="width:28px;height:28px;" data-action="delete-memory" data-id="${m.id}"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+          </div>
+          <div class="tiny faint" style="margin-top:2px;">${JalaliUtil.formatFull(JalaliUtil.isoToDate(m.memory_date))}</div>
+          ${m.description ? `<div class="small" style="margin-top:8px;">${escapeHtml(m.description)}</div>` : ''}
+          ${m.location ? `<div class="tiny faint" style="margin-top:6px;">📍 ${escapeHtml(m.location)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  challengeCardHtml(c) {
+    const pct = Math.round((c.progress / c.target) * 100);
+    return `
+      <div class="card" style="margin-top:0;">
+        <div class="row between">
+          <div style="font-weight:700;">${escapeHtml(c.title)}</div>
+          <button class="btn btn-icon btn-sm" style="width:28px;height:28px;" data-action="delete-challenge" data-id="${c.id}"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+        </div>
+        ${c.description ? `<div class="small faint" style="margin-top:4px;">${escapeHtml(c.description)}</div>` : ''}
+        <div class="row between small" style="margin-top:10px;margin-bottom:6px;">
+          <span class="faint num">${Digits.toFa(c.progress)} / ${Digits.toFa(c.target)}</span>
+          ${c.completed ? '<span class="badge badge-success">تکمیل شد 🎉</span>' : `<button class="btn btn-rose btn-sm" data-action="increment-challenge" data-id="${c.id}">+۱</button>`}
+        </div>
+        <div class="progress-track"><div class="progress-fill rose" style="width:${pct}%;"></div></div>
+      </div>
+    `;
+  },
+
+  /* ---------------- SETTINGS ---------------- */
+  renderSettings() {
+    const p = State.profile;
+    return `
+      <h2 style="margin-bottom:14px;">تنظیمات</h2>
+      <div class="card" style="text-align:center;">
+        <div class="avatar lg" style="margin:0 auto;">${p?.avatar_url ? `<img src="${p.avatar_url}"/>` : (p?.full_name?.[0] || '🙂')}</div>
+        <input type="file" id="avatar-input" accept="image/*" style="display:none;" />
+        <button class="btn btn-ghost btn-sm section-gap" data-action="upload-avatar">تغییر عکس پروفایل</button>
+      </div>
+
+      <div class="card">
+        <div class="field"><label>نام</label><input class="input" id="settings-name" value="${escapeHtml(p?.full_name || '')}" /></div>
+        <div class="field"><label>ایمیل</label><input class="input" value="${escapeHtml(State.user?.email || '')}" disabled /></div>
+        <button class="btn btn-primary btn-block" data-action="save-profile">ذخیره تغییرات</button>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px;">تغییر رمز عبور</div>
+        <div class="field"><label>رمز جدید</label><input class="input" id="new-password" type="password" minlength="6" /></div>
+        <button class="btn btn-outline btn-block" data-action="change-password">به‌روزرسانی رمز</button>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:14px;">حریم خصوصی و اعلان‌ها</div>
+        <div class="row between">
+          <div>
+            <div class="small" style="font-weight:600;">اعلان‌های یادآوری تسک</div>
+            <div class="tiny faint">وقتی زمان یک تسک برسد، مطلعت می‌کنیم</div>
+          </div>
+          <label class="switch"><input type="checkbox" ${NotificationManager.hasPermission() && State.localPrefs.notifications ? 'checked' : ''} data-action="toggle-pref" data-pref="notifications" /><span class="track"><span class="thumb"></span></span></label>
+        </div>
+        ${!NotificationManager.isSupported() ? `<div class="tiny faint" style="margin-top:8px;">مرورگر شما از اعلان پشتیبانی نمی‌کند.</div>` : ''}
+        ${NotificationManager.isSupported() && Notification.permission === 'denied' ? `<div class="tiny" style="margin-top:8px;color:var(--danger);">اعلان‌ها از تنظیمات مرورگر مسدود شده — باید از آنجا دوباره فعالش کنی.</div>` : ''}
+        <button class="btn btn-outline btn-sm section-gap" data-action="test-notification">ارسال اعلان آزمایشی</button>
+        <div class="tiny faint section-gap">این یادآوری‌ها فقط وقتی کار می‌کنند که اپ باز باشد یا به‌صورت PWA نصب شده باشد؛ برای اعلان هنگام بسته‌بودن کامل اپ به تنظیمات سرور بیشتری نیاز است.</div>
+        <hr class="divider" />
+        <div class="row between">
+          <div><div class="small" style="font-weight:600;">اشتراک خودکار Mood</div><div class="tiny faint">به‌صورت پیش‌فرض با پارتنر به اشتراک بگذار</div></div>
+          <label class="switch"><input type="checkbox" ${State.localPrefs.autoShareMood ? 'checked' : ''} data-action="toggle-pref" data-pref="autoShareMood" /><span class="track"><span class="thumb"></span></span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row between">
+          <div><div class="small" style="font-weight:600;">پارتنر</div><div class="tiny faint">${State.partnerProfile ? escapeHtml(State.partnerProfile.full_name || 'متصل') : 'متصل نیستید'}</div></div>
+          <button class="btn btn-ghost btn-sm" data-nav="relationship">مدیریت</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="small" style="font-weight:600;margin-bottom:12px;">ظاهر برنامه</div>
+        <div class="row gap-8">
+          <button class="btn btn-sm ${(State.localPrefs.theme || 'dark') === 'dark' ? 'btn-primary' : 'btn-outline'}" style="flex:1;" data-action="set-theme" data-value="dark">🌙 تیره</button>
+          <button class="btn btn-sm ${State.localPrefs.theme === 'light' ? 'btn-primary' : 'btn-outline'}" style="flex:1;" data-action="set-theme" data-value="light">☀️ روشن</button>
+        </div>
+      </div>
+
+      <button class="btn btn-danger btn-block section-gap" data-action="logout">خروج از حساب</button>
+    `;
+  }
+};
+/* ================================================================
+   MODAL OPENERS (extend UIManager)
+================================================================ */
+UIManager.openTaskModal = function (id) {
+  const task = id ? State.tasks.find((t) => t.id === id) : null;
+  const subtasksText = task ? task.subtasks.map((s) => s.title).join('\n') : '';
+  const tagsText = task ? task.tagNames.join(', ') : '';
+  ModalManager.open(`
+    <div class="modal-title">${task ? 'ویرایش تسک' : 'تسک جدید'}</div>
+    <form id="task-form" data-edit-id="${task ? task.id : ''}">
+      <div class="field"><label>عنوان</label><input class="input" name="title" required value="${escapeHtml(task?.title || '')}" /></div>
+      <div class="field"><label>توضیحات</label><textarea class="input" name="description">${escapeHtml(task?.description || '')}</textarea></div>
+      <div class="input-row">
+        <div class="field"><label>تاریخ</label><input class="input" type="date" name="due_date" value="${task?.due_date || ''}" /></div>
+        <div class="field"><label>ساعت</label><input class="input" type="time" name="due_time" value="${task?.due_time ? task.due_time.slice(0,5) : ''}" /></div>
+      </div>
+      <div class="input-row">
+        <div class="field"><label>Priority</label>
+          <select class="input" name="priority">
+            <option value="urgent" ${task?.priority === 'urgent' ? 'selected' : ''}>🔴 فوری</option>
+            <option value="important" ${task?.priority === 'important' ? 'selected' : ''}>🟠 مهم</option>
+            <option value="normal" ${!task || task.priority === 'normal' ? 'selected' : ''}>⚪ عادی</option>
+          </select>
+        </div>
+        <div class="field"><label>لیست</label>
+          <select class="input" name="list_type">
+            <option value="work" ${!task || task.list_type === 'work' ? 'selected' : ''}>💼 کاری</option>
+            <option value="relationship" ${task?.list_type === 'relationship' ? 'selected' : ''}>❤️ رابطه</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>تگ‌ها (با کاما جدا کن)</label><input class="input" name="tags" value="${escapeHtml(tagsText)}" placeholder="کار, جلسه" /></div>
+      <div class="field"><label>Subtaskها (هر خط یک مورد)</label><textarea class="input" name="subtasks" placeholder="یک مورد در هر خط">${escapeHtml(subtasksText)}</textarea></div>
+      <button type="submit" class="btn btn-primary btn-block section-gap">${task ? 'ذخیره تغییرات' : 'افزودن تسک'}</button>
+      ${task ? `<button type="button" class="btn btn-danger btn-block" style="margin-top:10px;" data-action="delete-task-modal" data-id="${task.id}">حذف تسک</button>` : ''}
+    </form>
+  `);
+};
+
+UIManager.openGoalModal = function (id) {
+  const goal = id ? State.goals.find((g) => g.id === id) : null;
+  const stepsText = goal ? goal.goal_steps.map((s) => s.title).join('\n') : '';
+  ModalManager.open(`
+    <div class="modal-title">${goal ? 'ویرایش هدف' : 'هدف جدید'}</div>
+    <form id="goal-form" data-edit-id="${goal ? goal.id : ''}">
+      <div class="field"><label>عنوان</label><input class="input" name="title" required value="${escapeHtml(goal?.title || '')}" /></div>
+      <div class="field"><label>توضیح</label><textarea class="input" name="description">${escapeHtml(goal?.description || '')}</textarea></div>
+      <div class="field"><label>افق زمانی</label>
+        <select class="input" name="horizon">
+          <option value="1m" ${!goal || goal.horizon === '1m' ? 'selected' : ''}>۱ ماهه</option>
+          <option value="3m" ${goal?.horizon === '3m' ? 'selected' : ''}>۳ ماهه</option>
+          <option value="6m" ${goal?.horizon === '6m' ? 'selected' : ''}>۶ ماهه</option>
+          <option value="12m" ${goal?.horizon === '12m' ? 'selected' : ''}>۱۲ ماهه</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <div class="field"><label>تاریخ شروع</label><input class="input" type="date" name="start_date" value="${goal?.start_date || JalaliUtil.dateToIso(new Date())}" /></div>
+        <div class="field"><label>Deadline</label><input class="input" type="date" name="deadline" value="${goal?.deadline || ''}" /></div>
+      </div>
+      <div class="field"><label>مراحل (هر خط یک مرحله)</label><textarea class="input" name="steps" placeholder="یک مرحله در هر خط">${escapeHtml(stepsText)}</textarea></div>
+      <button type="submit" class="btn btn-primary btn-block section-gap">${goal ? 'ذخیره تغییرات' : 'افزودن هدف'}</button>
+      ${goal ? `<button type="button" class="btn btn-danger btn-block" style="margin-top:10px;" data-action="delete-goal-modal" data-id="${goal.id}">حذف هدف</button>` : ''}
+    </form>
+    ${goal && goal.goal_steps.length ? `
+      <hr class="divider" />
+      <div class="small" style="font-weight:700;margin-bottom:8px;">مراحل</div>
+      ${goal.goal_steps.map((s) => `
+        <div class="row gap-10" style="padding:6px 0;">
+          <div class="checkbox ${s.completed ? 'checked' : ''}" data-action="toggle-step" data-id="${s.id}" data-goal="${goal.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <span class="small ${s.completed ? 'faint' : ''}" style="${s.completed ? 'text-decoration:line-through;' : ''}">${escapeHtml(s.title)}</span>
+        </div>
+      `).join('')}
+    ` : ''}
+  `);
+};
+
+UIManager.openMoodModal = function () {
+  const existing = MoodManager.todayMood();
+  ModalManager.open(`
+    <div class="modal-title">حالت امروزت چطوره؟</div>
+    <div class="mood-picker" id="mood-picker">
+      ${[1,2,3,4,5].map((v) => `
+        <div class="mood-opt ${existing && existing.mood === v ? 'selected' : ''}" data-value="${v}" data-action="pick-mood">
+          <span>${this.moodEmoji(v)}</span><span class="lbl num">${Digits.toFa(v)}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="field section-gap"><label>یادداشت (اختیاری)</label><textarea class="input" id="mood-note">${escapeHtml(existing?.note || '')}</textarea></div>
+    <div class="row between section-gap">
+      <span class="small">اشتراک با پارتنر</span>
+      <label class="switch"><input type="checkbox" id="mood-shared" ${existing ? (existing.is_shared ? 'checked' : '') : (State.localPrefs.autoShareMood ? 'checked' : '')} /><span class="track"><span class="thumb"></span></span></label>
+    </div>
+    <button class="btn btn-rose btn-block section-gap" data-action="submit-mood">ثبت Mood</button>
+  `);
+};
+
+UIManager.openMemoryModal = function () {
+  if (!State.relationship || !State.relationship.user2_id) {
+    ToastManager.warning('اول باید به پارتنرت متصل شوی.');
+    return;
+  }
+  ModalManager.open(`
+    <div class="modal-title">خاطره جدید 📸</div>
+    <form id="memory-form">
+      <div class="field"><label>عنوان</label><input class="input" name="title" required /></div>
+      <div class="field"><label>تاریخ</label><input class="input" type="date" name="memory_date" value="${JalaliUtil.dateToIso(new Date())}" /></div>
+      <div class="field"><label>توضیح</label><textarea class="input" name="description"></textarea></div>
+      <div class="field"><label>مکان (اختیاری)</label><input class="input" name="location" /></div>
+      <div class="field"><label>عکس</label><input class="input" type="file" name="image" accept="image/*" /></div>
+      <button type="submit" class="btn btn-rose btn-block section-gap">ذخیره خاطره</button>
+    </form>
+  `);
+};
+
+UIManager.openChallengeModal = function () {
+  if (!State.relationship || !State.relationship.user2_id) {
+    ToastManager.warning('اول باید به پارتنرت متصل شوی.');
+    return;
+  }
+  ModalManager.open(`
+    <div class="modal-title">چالش مشترک جدید</div>
+    <form id="challenge-form">
+      <div class="field"><label>عنوان</label><input class="input" name="title" required placeholder="مثلاً ۵ بار صبحانه باهم" /></div>
+      <div class="field"><label>توضیح</label><textarea class="input" name="description"></textarea></div>
+      <div class="input-row">
+        <div class="field"><label>Target</label><input class="input" type="number" name="target" min="1" value="5" required /></div>
+        <div class="field"><label>تاریخ پایان (اختیاری)</label><input class="input" type="date" name="end_date" /></div>
+      </div>
+      <button type="submit" class="btn btn-rose btn-block section-gap">ایجاد چالش</button>
+    </form>
+  `);
+};
+
+UIManager.classifyCycleDate = function (iso, status) {
+  const today = JalaliUtil.dateToIso(new Date());
+  for (const c of State.cycles) {
+    const s = c.start_date;
+    const e = c.end_date || addDaysIso(s, (c.period_length || status.periodLen) - 1);
+    if (iso >= s && iso <= e) return 'period';
+  }
+  const nextEnd = addDaysIso(status.nextPeriodDate, status.periodLen - 1);
+  if (iso >= status.nextPeriodDate && iso <= nextEnd) return 'period-estimate';
+  if (iso >= status.ovulationStart && iso <= status.ovulationEnd) return 'ovulation';
+  if (iso === today) return 'today';
+  return null;
+};
+
+UIManager.cycleDonutSvg = function (status) {
+  const { cycleLen, effectiveDay, periodLen } = status;
+  const size = 176, r = 70, cx = size / 2, cy = size / 2, thickness = 15;
+  const phases = [];
+  for (let d = 1; d <= cycleLen; d += 1) phases.push(CycleAlgorithms.getPhase(d, cycleLen, periodLen));
+  const arcs = [];
+  let segStart = 0;
+  for (let i = 1; i <= phases.length; i += 1) {
+    if (i === phases.length || phases[i] !== phases[segStart]) { arcs.push({ phase: phases[segStart], from: segStart, to: i }); segStart = i; }
+  }
+  const toXY = (frac) => {
+    const angle = frac * 2 * Math.PI - Math.PI / 2;
+    return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+  };
+  const arcPaths = arcs.map((a) => {
+    const fromFrac = a.from / cycleLen, toFrac = a.to / cycleLen;
+    const [x1, y1] = toXY(fromFrac), [x2, y2] = toXY(Math.min(toFrac, 0.9999));
+    const largeArc = (toFrac - fromFrac) > 0.5 ? 1 : 0;
+    const color = CycleAlgorithms.PHASE_META[a.phase].color;
+    return `<path d="M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}" fill="none" stroke="${color}" stroke-width="${thickness}" />`;
+  }).join('');
+  const [mx, my] = toXY((effectiveDay - 0.5) / cycleLen);
+  return `
+    <svg viewBox="0 0 ${size} ${size}" style="width:168px;height:168px;">
+      ${arcPaths}
+      <circle cx="${mx.toFixed(2)}" cy="${my.toFixed(2)}" r="7" fill="var(--bg-elevated)" stroke="#fff" stroke-width="2.5" />
+      <text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="24" font-weight="800" fill="var(--text-primary)">${Digits.toFa(effectiveDay)}</text>
+      <text x="${cx}" y="${cy + 17}" text-anchor="middle" font-size="10" fill="var(--text-muted)">از ${Digits.toFa(cycleLen)} روز</text>
+    </svg>
+  `;
+};
+
+UIManager.cycleCalendarHtml = function (status) {
+  const now = new Date();
+  const j = JalaliUtil.fromDate(now);
+  const monthLen = jalaliMonthLength(j.jy, j.jm);
+  const firstDate = JalaliUtil.toDate(j.jy, j.jm, 1);
+  const firstWeekday = firstDate.getDay();
+  const cells = [];
+  for (let i = 0; i < firstWeekday; i += 1) cells.push(null);
+  for (let d = 1; d <= monthLen; d += 1) {
+    const iso = JalaliUtil.dateToIso(JalaliUtil.toDate(j.jy, j.jm, d));
+    cells.push({ day: d, cls: this.classifyCycleDate(iso, status) });
+  }
+  const styles = {
+    period: 'background:var(--danger);color:#fff;',
+    'period-estimate': 'border:2px dashed var(--danger);color:var(--danger);',
+    ovulation: 'background:var(--warning);color:#241C11;',
+    today: 'border:2px solid var(--accent);color:var(--accent-2);font-weight:800;'
+  };
+  const dayCell = (c) => !c ? `<div></div>` : `<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:11.5px;${styles[c.cls] || ''}">${Digits.toFa(c.day)}</div>`;
+  return `
+    <div style="text-align:center;font-weight:700;margin-bottom:8px;">${JalaliUtil.MONTHS[j.jm - 1]} ${Digits.toFa(j.jy)}</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;font-size:10px;color:var(--text-muted);text-align:center;margin-bottom:4px;">
+      ${JalaliUtil.WEEKDAYS_SHORT.map((w) => `<div>${w}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">${cells.map(dayCell).join('')}</div>
+    <div class="row gap-12 tiny faint" style="margin-top:10px;flex-wrap:wrap;">
+      <span>🔴 روزهای پریود</span><span>🟡 بازه تخمینی تخمک‌گذاری</span><span>⭕ تخمین پریود بعدی</span>
+    </div>
+  `;
+};
+
+UIManager.cycleHistoryRowHtml = function (c, stats) {
+  const dev = c.cycle_length ? CycleAlgorithms.deviationLabel(c.cycle_length, stats.avg) : null;
+  return `
+    <div class="row between" style="padding:8px 0;border-bottom:1px solid var(--border-soft);">
+      <div>
+        <div class="small" style="font-weight:600;">${JalaliUtil.formatShort(JalaliUtil.isoToDate(c.start_date))}${c.end_date ? ' – ' + JalaliUtil.formatShort(JalaliUtil.isoToDate(c.end_date)) : ''}</div>
+        <div class="tiny faint">${c.cycle_length ? `طول چرخه: ${Digits.toFa(c.cycle_length)} روز` : 'چرخه در حال جریان'}${c.period_length ? ` · خونریزی: ${Digits.toFa(c.period_length)} روز` : ''}</div>
+      </div>
+      <div class="row gap-8">
+        ${dev ? `<span class="badge badge-${dev.tone === 'success' ? 'success' : 'important'}">${dev.label}</span>` : ''}
+        <button class="btn btn-icon btn-sm" style="width:28px;height:28px;" data-action="open-cycle-correct" data-id="${c.id}"><i data-lucide="pencil" style="width:13px;height:13px;"></i></button>
+      </div>
+    </div>
+  `;
+};
+
+UIManager.cycleLogFormHtml = function (log) {
+  const options = ['درد شکم', 'کمردرد', 'سردرد', 'نفخ', 'حساسیت سینه', 'خستگی', 'تغییر خلق', 'تحریک‌پذیری', 'انرژی پایین', 'لکه‌بینی', 'خونریزی', 'ترشحات'];
+  const selected = log?.symptoms || [];
+  return `
+    <form id="cycle-log-form">
+      <div class="chip-row" style="flex-wrap:wrap;overflow:visible;">
+        ${options.map((o) => `
+          <label class="chip ${selected.includes(o) ? 'active' : ''}" style="cursor:pointer;">
+            <input type="checkbox" name="symptoms" value="${o}" ${selected.includes(o) ? 'checked' : ''} style="display:none;" />${o}
+          </label>
+        `).join('')}
+      </div>
+      <div class="field section-gap"><label>شدت درد (۰ تا ۱۰): <span id="pain-val" class="num">${Digits.toFa(log?.pain_level ?? 0)}</span></label>
+        <input type="range" id="pain-range" min="0" max="10" name="pain_level" value="${log?.pain_level ?? 0}" style="width:100%;" />
+      </div>
+      <div class="input-row">
+        <div class="field"><label>سطح انرژی</label>
+          <select class="input" name="energy_level">
+            ${[1, 2, 3, 4, 5].map((v) => `<option value="${v}" ${log?.energy_level === v ? 'selected' : ''}>${v === 1 ? 'خیلی کم' : v === 5 ? 'خیلی زیاد' : Digits.toFa(v)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>خلق امروز</label>
+          <select class="input" name="mood_today">
+            ${[1, 2, 3, 4, 5].map((v) => `<option value="${v}" ${log?.mood_today === v ? 'selected' : ''}>${this.moodEmoji(v)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>یادداشت (اختیاری)</label><textarea class="input" name="note">${escapeHtml(log?.note || '')}</textarea></div>
+      <button type="submit" class="btn btn-outline btn-block">ذخیره وضعیت امروز</button>
+    </form>
+  `;
+};
+
+UIManager.openConfirmNewPeriod = function () {
+  const current = CycleManager.getCurrent();
+  ModalManager.open(`
+    <div class="modal-title">آیا امروز اولین روز خونریزی پریود شماست؟</div>
+    <div class="field"><label>تاریخ شروع</label><input class="input" type="date" id="new-period-date" value="${JalaliUtil.dateToIso(new Date())}" /></div>
+    <div class="row between section-gap">
+      <span class="small">اشتراک با پارتنر</span>
+      <label class="switch"><input type="checkbox" id="new-period-shared" ${current?.is_shared ? 'checked' : ''} /><span class="track"><span class="thumb"></span></span></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" data-action="close-modal">انصراف</button>
+      <button class="btn btn-rose btn-block" data-action="submit-new-period">بله، ثبت کن</button>
+    </div>
+  `);
+};
+
+UIManager.openCycleEditModal = function (id) {
+  const cycle = State.cycles.find((c) => c.id === id);
+  if (!cycle) return;
+  ModalManager.open(`
+    <div class="modal-title">اصلاح تاریخ چرخه</div>
+    <form id="cycle-edit-form" data-id="${id}">
+      <div class="field"><label>تاریخ شروع</label><input class="input" type="date" name="start_date" value="${cycle.start_date}" required /></div>
+      <div class="field"><label>تاریخ پایان خونریزی (اختیاری)</label><input class="input" type="date" name="end_date" value="${cycle.end_date || ''}" /></div>
+      <button type="submit" class="btn btn-primary btn-block section-gap">ذخیره و محاسبه مجدد</button>
+    </form>
+    <button class="btn btn-danger btn-block" style="margin-top:10px;" data-action="delete-cycle" data-id="${id}">حذف این چرخه</button>
+  `);
+};
+
+UIManager.openCycleModal = function () {
+  const status = CycleManager.getStatus();
+
+  if (!status) {
+    ModalManager.open(`
+      <div class="modal-title">🌙 Cycle Tracker</div>
+      <p class="small faint" style="margin-bottom:16px;">هنوز چرخه‌ای ثبت نکرده‌ای. این بخش کاملاً اختیاری و خصوصی است.</p>
+      <form id="cycle-start-form">
+        <div class="field"><label>تاریخ شروع آخرین پریود</label><input class="input" type="date" name="start_date" value="${JalaliUtil.dateToIso(new Date())}" required /></div>
+        <div class="row between section-gap">
+          <span class="small">اشتراک با پارتنر</span>
+          <label class="switch"><input type="checkbox" name="is_shared" /><span class="track"><span class="thumb"></span></span></label>
+        </div>
+        <button type="submit" class="btn btn-rose btn-block section-gap">شروع پیگیری چرخه</button>
+      </form>
+      <div class="tiny faint section-gap">${CYCLE_DISCLAIMER}</div>
+    `);
+    return;
+  }
+
+  const current = CycleManager.getCurrent();
+  const stats = status.stats;
+  const cyclesDesc = CycleAlgorithms.sortByStart(State.cycles).slice().reverse();
+  const todayLog = CycleManager.todayLog();
+
+  ModalManager.open(`
+    <div class="modal-title">🌙 Cycle Tracker</div>
+    <div style="text-align:center;">${this.cycleDonutSvg(status)}</div>
+    <div style="text-align:center;margin-top:6px;">
+      <div style="font-weight:800;font-size:16px;">${status.meta.emoji} مرحله فعلی: ${status.meta.label}</div>
+      <div class="small faint" style="margin-top:4px;">روز ${Digits.toFa(status.dayInCycle)} چرخه${status.isLate ? ' (چرخه از میانگین طولانی‌تر شده)' : ''}</div>
+    </div>
+    <p class="small" style="margin-top:12px;">${status.meta.description}</p>
+    <p class="tiny faint" style="margin-top:6px;">${status.meta.symptoms}</p>
+
+    <div class="row gap-8" style="margin-top:16px;">
+      <div class="card" style="flex:1;margin-top:0;padding:12px;text-align:center;">
+        <div class="tiny faint">پریود بعدی (تخمینی)</div>
+        <div style="font-weight:700;margin-top:4px;">${JalaliUtil.formatShort(JalaliUtil.isoToDate(status.nextPeriodDate))}</div>
+        <div class="tiny faint">${status.daysUntilNextPeriod >= 0 ? `حدود ${Digits.toFa(status.daysUntilNextPeriod)} روز دیگر` : `${Digits.toFa(Math.abs(status.daysUntilNextPeriod))} روز تأخیر`}</div>
+      </div>
+      <div class="card" style="flex:1;margin-top:0;padding:12px;text-align:center;">
+        <div class="tiny faint">بازه احتمالی تخمک‌گذاری</div>
+        <div style="font-weight:700;margin-top:4px;">${JalaliUtil.formatShort(JalaliUtil.isoToDate(status.ovulationStart))} تا ${JalaliUtil.formatShort(JalaliUtil.isoToDate(status.ovulationEnd))}</div>
+        <div class="tiny faint">تخمینی، غیرقطعی</div>
+      </div>
+    </div>
+
+    <div class="row gap-8" style="margin-top:12px;">
+      <button class="btn btn-rose btn-block" data-action="confirm-new-period">پریودم شروع شد</button>
+      <button class="btn btn-outline btn-sm" data-action="open-cycle-correct" data-id="${current.id}">اصلاح تاریخ</button>
+    </div>
+
+    <hr class="divider" />
+    <div style="font-weight:700;margin-bottom:10px;">وضعیت و علائم امروز</div>
+    ${this.cycleLogFormHtml(todayLog)}
+
+    <hr class="divider" />
+    <div style="font-weight:700;margin-bottom:10px;">آمار چرخه‌ها</div>
+    ${stats.count ? `
+      <div class="small">میانگین چرخه شما در ${Digits.toFa(stats.count)} چرخه اخیر: <b>${Digits.toFa(stats.avg)} روز</b></div>
+      <div class="tiny faint" style="margin-top:4px;">کوتاه‌ترین: ${Digits.toFa(stats.min)} روز · طولانی‌ترین: ${Digits.toFa(stats.max)} روز${stats.periodAvg ? ` · میانگین خونریزی: ${Digits.toFa(stats.periodAvg)} روز` : ''}</div>
+      ${stats.irregular ? `<div class="tiny" style="margin-top:6px;color:var(--warning);">چرخه‌های شما نسبتاً نامنظم‌اند؛ به همین دلیل تخمین تخمک‌گذاری دقت کمتری دارد. اگر تغییرات چرخه شما مداوم یا نگران‌کننده است، بهتر است با پزشک یا ماما مشورت کنید.</div>` : ''}
+    ` : `<div class="tiny faint">برای محاسبه دقیق‌تر، چند چرخه دیگر ثبت کنید.</div>`}
+
+    <hr class="divider" />
+    <div style="font-weight:700;margin-bottom:10px;">تقویم چرخه</div>
+    ${this.cycleCalendarHtml(status)}
+
+    <hr class="divider" />
+    <div style="font-weight:700;margin-bottom:10px;">تاریخچه چرخه‌ها</div>
+    ${cyclesDesc.length ? cyclesDesc.map((c) => this.cycleHistoryRowHtml(c, stats)).join('') : `<div class="tiny faint">هنوز چرخه بسته‌شده‌ای ثبت نشده.</div>`}
+
+    <hr class="divider" />
+    <div class="row between">
+      <span class="small">اشتراک چرخه فعلی با پارتنر</span>
+      <label class="switch"><input type="checkbox" data-action="toggle-cycle-share" data-id="${current.id}" ${current.is_shared ? 'checked' : ''} /><span class="track"><span class="thumb"></span></span></label>
+    </div>
+
+    <div class="tiny faint section-gap">${CYCLE_DISCLAIMER}</div>
+  `);
+};
+
+UIManager.openPomodoro = function (taskId) {
+  const p = State.pomodoro;
+  if (taskId) p.currentTaskId = taskId;
+  ModalManager.open(`
+    <div class="modal-title">🍅 Pomodoro</div>
+    <div class="pomo-wrap">
+      <div class="pomo-ring">
+        <svg viewBox="0 0 220 220">
+          <circle cx="110" cy="110" r="100" fill="none" stroke="var(--surface-2)" stroke-width="10"/>
+          <circle id="pomo-circle" cx="110" cy="110" r="100" fill="none" stroke="url(#ringGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="628.3" stroke-dashoffset="0"/>
+        </svg>
+        <div class="pomo-time">
+          <div class="t num" id="pomo-time-text">۲۵:۰۰</div>
+          <div class="m" id="pomo-mode-text">${p.mode === 'focus' ? 'تمرکز' : 'استراحت'}</div>
+        </div>
+      </div>
+      <div class="pomo-controls">
+        <button class="btn btn-icon" data-action="pomo-reset" aria-label="ریست"><i data-lucide="rotate-ccw"></i></button>
+        <button class="btn btn-primary" style="width:96px;" data-action="pomo-toggle" id="pomo-toggle-btn">${p.running ? 'مکث' : 'شروع'}</button>
+        <button class="btn btn-icon" data-action="pomo-skip" aria-label="رد کردن"><i data-lucide="skip-forward"></i></button>
+      </div>
+      <div class="tiny faint section-gap">${Digits.toFa(p.sessionsCompleted)} Session تکمیل‌شده</div>
+    </div>
+  `);
+  this.updatePomodoroDisplay();
+};
+
+UIManager.updatePomodoroDisplay = function () {
+  const p = State.pomodoro;
+  const totalSec = (p.mode === 'focus' ? p.focusMinutes : p.breakMinutes) * 60;
+  const timeText = qs('#pomo-time-text');
+  if (!timeText) return;
+  const mins = Math.floor(p.remaining / 60);
+  const secs = p.remaining % 60;
+  timeText.textContent = Digits.toFa(`${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
+  const modeText = qs('#pomo-mode-text');
+  if (modeText) modeText.textContent = p.mode === 'focus' ? 'تمرکز' : 'استراحت';
+  const circle = qs('#pomo-circle');
+  if (circle) {
+    const circumference = 2 * Math.PI * 100;
+    const pct = totalSec ? p.remaining / totalSec : 0;
+    circle.setAttribute('stroke-dashoffset', String(circumference * (1 - pct)));
+  }
+  const btn = qs('#pomo-toggle-btn');
+  if (btn) btn.textContent = p.running ? 'مکث' : 'شروع';
+};
+
+function confirmModal(message, onConfirm) {
+  ModalManager.open(`
+    <div class="modal-title">تأیید حذف</div>
+    <p class="muted small" style="margin-bottom:20px;">${escapeHtml(message)}</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" data-action="close-modal">انصراف</button>
+      <button class="btn btn-danger btn-block" id="confirm-yes-btn">حذف</button>
+    </div>
+  `);
+  qs('#confirm-yes-btn').addEventListener('click', async () => {
+    ModalManager.close();
+    await onConfirm();
+  });
+}
+
+/* ================================================================
+   APP — bootstrap + event delegation
+================================================================ */
+const App = {
+  async bootAuthenticated() {
+    Loading.show();
+    try {
+      await ProfileManager.load();
+      await RelationshipManager.load();
+      await Promise.all([
+        TaskManager.loadAll(),
+        GoalManager.loadAll(),
+        MoodManager.loadHistory(),
+        ActivityManager.loadStreak(),
+        CycleManager.loadAll()
+      ]);
+      await Promise.all([MemoryManager.loadAll(), ChallengeManager.loadAll(), DailyMessageManager.loadToday()]);
+      RealtimeManager.subscribeToRelationship();
+      if (State.localPrefs.notifications && NotificationManager.hasPermission()) {
+        NotificationManager.startChecking();
+      }
+      this.showApp();
+      UIManager.navigate('today');
+    } catch (e) {
+      ToastManager.error(friendlyError(e));
+    } finally {
+      Loading.hide();
+    }
+  },
+
+  showApp() {
+    qs('#auth-screen').style.display = 'none';
+    qs('#app-root').classList.add('ready');
+  },
+
+  showAuthScreen() {
+    qs('#app-root').classList.remove('ready');
+    qs('#auth-screen').style.display = 'flex';
+  },
+
+  showConfigWarning() {
+    if (qs('#config-warning')) return;
+    const box = el(`
+      <div id="config-warning" class="auth-error" style="display:block;margin-bottom:16px;">
+        ⚠️ کلیدهای Supabase هنوز تنظیم نشده‌اند. فرم‌های زیر تا وارد کردن SUPABASE_URL و SUPABASE_ANON_KEY در انتهای index.html کار نخواهند کرد (به README.md نگاه کنید).
+      </div>
+    `);
+    qs('.auth-box').insertBefore(box, qs('.auth-tabs'));
+  },
+
+  async withLoading(fn) {
+    Loading.show();
+    try { await fn(); } catch (e) { ToastManager.error(friendlyError(e)); } finally { Loading.hide(); }
+  },
+
+  bindEvents() {
+    // ---------- Auth tabs ----------
+    qsa('[data-authtab]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.authtab;
+        qsa('.auth-tab').forEach((t) => t.classList.toggle('active', t.dataset.authtab === tab));
+        qsa('[data-authform]').forEach((f) => { f.style.display = f.dataset.authform === tab ? 'block' : 'none'; });
+        qs('#auth-error').style.display = 'none';
+      });
+    });
+
+    qs('#login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      Loading.show();
+      try {
+        await AuthManager.signIn(fd.get('email'), fd.get('password'));
+        await App.bootAuthenticated();
+      } catch (err) {
+        qs('#auth-error').textContent = friendlyError(err);
+        qs('#auth-error').style.display = 'block';
+      } finally { Loading.hide(); }
+    });
+
+    qs('#register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      Loading.show();
+      try {
+        await AuthManager.signUp(fd.get('full_name'), fd.get('email'), fd.get('password'));
+        ToastManager.success('ثبت‌نام موفق بود! اگر تأیید ایمیل فعال باشد، ایمیلت را بررسی کن.');
+        const { data } = await sb.auth.getSession();
+        if (data.session) { State.session = data.session; State.user = data.session.user; await App.bootAuthenticated(); }
+      } catch (err) {
+        qs('#auth-error').textContent = friendlyError(err);
+        qs('#auth-error').style.display = 'block';
+      } finally { Loading.hide(); }
+    });
+
+    qs('#forgot-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      Loading.show();
+      try {
+        await AuthManager.resetPassword(fd.get('email'));
+        ToastManager.success('لینک بازیابی ارسال شد ✓');
+      } catch (err) {
+        qs('#auth-error').textContent = friendlyError(err);
+        qs('#auth-error').style.display = 'block';
+      } finally { Loading.hide(); }
+    });
+
+    // ---------- Nav ----------
+    document.addEventListener('click', (e) => {
+      const navBtn = e.target.closest('[data-nav]');
+      if (navBtn) { UIManager.navigate(navBtn.dataset.nav); }
+    });
+
+    // ---------- Delegated actions ----------
+    document.addEventListener('click', async (e) => {
+      const t = e.target.closest('[data-action]');
+      if (!t) return;
+      const action = t.dataset.action;
+      const id = t.dataset.id;
+
+      switch (action) {
+        case 'close-modal': ModalManager.close(); break;
+
+        case 'open-task-modal': UIManager.openTaskModal(id); break;
+        case 'toggle-task':
+          await TaskManager.toggleComplete(id); UIManager.renderView(); break;
+        case 'delete-task':
+          confirmModal('این تسک برای همیشه حذف می‌شود.', async () => {
+            await App.withLoading(async () => { await TaskManager.deleteTask(id); UIManager.renderView(); ToastManager.success('حذف شد ✓'); });
+          }); break;
+        case 'delete-task-modal':
+          confirmModal('این تسک برای همیشه حذف می‌شود.', async () => {
+            await App.withLoading(async () => { await TaskManager.deleteTask(id); UIManager.renderView(); ToastManager.success('حذف شد ✓'); });
+          }); break;
+        case 'set-task-filter': State.taskFilter = t.dataset.value; UIManager.renderView(); break;
+        case 'set-tag-filter': State.taskTagFilter = t.dataset.value || null; UIManager.renderView(); break;
+        case 'select-date':
+          State.selectedDate = t.dataset.value;
+          State.taskFilter = 'customDate';
+          UIManager.renderView(); break;
+
+        case 'open-goal-modal': UIManager.openGoalModal(id); break;
+        case 'delete-goal':
+          confirmModal('این هدف برای همیشه حذف می‌شود.', async () => {
+            await App.withLoading(async () => { await GoalManager.deleteGoal(id); UIManager.renderView(); ToastManager.success('حذف شد ✓'); });
+          }); break;
+        case 'delete-goal-modal':
+          confirmModal('این هدف برای همیشه حذف می‌شود.', async () => {
+            await App.withLoading(async () => { await GoalManager.deleteGoal(id); UIManager.renderView(); ToastManager.success('حذف شد ✓'); });
+          }); break;
+        case 'toggle-step':
+          await TaskOrGoalStepToggle(id, t.dataset.goal); break;
+        case 'set-goal-horizon': State.goalHorizonFilter = t.dataset.value; UIManager.renderView(); break;
+
+        case 'open-mood-modal': UIManager.openMoodModal(); break;
+        case 'pick-mood':
+          qsa('.mood-opt').forEach((o) => o.classList.toggle('selected', o === t));
+          break;
+        case 'submit-mood': {
+          const selected = qs('.mood-opt.selected');
+          if (!selected) { ToastManager.warning('یک حالت را انتخاب کن.'); return; }
+          const mood = Number(selected.dataset.value);
+          const note = qs('#mood-note').value;
+          const shared = qs('#mood-shared').checked;
+          await App.withLoading(async () => {
+            await MoodManager.upsert(mood, note, shared);
+            ModalManager.close(); UIManager.renderView();
+            ToastManager.success('با موفقیت ذخیره شد ✓');
+          });
+          break;
+        }
+
+        case 'open-memory-modal': UIManager.openMemoryModal(); break;
+        case 'delete-memory':
+          confirmModal('این خاطره برای همیشه حذف می‌شود.', async () => {
+            await App.withLoading(async () => { await MemoryManager.delete(id); UIManager.renderView(); ToastManager.success('حذف شد ✓'); });
+          }); break;
+
+        case 'open-challenge-modal': UIManager.openChallengeModal(); break;
+        case 'increment-challenge':
+          await App.withLoading(async () => { await ChallengeManager.increment(id); UIManager.renderView(); });
+          break;
+        case 'delete-challenge':
+          confirmModal('این چالش برای همیشه حذف می‌شود.', async () => {
+            await App.withLoading(async () => { await ChallengeManager.delete(id); UIManager.renderView(); ToastManager.success('حذف شد ✓'); });
+          }); break;
+
+        case 'open-cycle-modal': UIManager.openCycleModal(); break;
+        case 'confirm-new-period': UIManager.openConfirmNewPeriod(); break;
+        case 'submit-new-period': {
+          const dateIso = qs('#new-period-date').value;
+          const shared = qs('#new-period-shared').checked;
+          if (!dateIso) { ToastManager.warning('تاریخ را وارد کن.'); return; }
+          await App.withLoading(async () => {
+            await CycleManager.startNewPeriod(dateIso, shared);
+            ModalManager.close();
+            UIManager.openCycleModal();
+            ToastManager.success('چرخه جدید ثبت و کل چرخه دوباره محاسبه شد ✓');
+          });
+          break;
+        }
+        case 'open-cycle-correct': UIManager.openCycleEditModal(id); break;
+        case 'delete-cycle':
+          confirmModal('این چرخه از تاریخچه حذف می‌شود و محاسبات دوباره انجام می‌شود.', async () => {
+            await App.withLoading(async () => {
+              await CycleManager.deleteCycle(id);
+              ModalManager.close();
+              UIManager.openCycleModal();
+              ToastManager.success('حذف و محاسبه مجدد انجام شد ✓');
+            });
+          }); break;
+
+        case 'open-pomodoro': UIManager.openPomodoro(); break;
+        case 'pomo-toggle':
+          if (State.pomodoro.running) PomodoroManager.pause(); else PomodoroManager.start();
+          UIManager.updatePomodoroDisplay(); break;
+        case 'pomo-reset': PomodoroManager.reset(); break;
+        case 'pomo-skip': PomodoroManager.skip(); break;
+
+        case 'create-invite':
+          await App.withLoading(async () => { await RelationshipManager.createInvite(); UIManager.renderView(); ToastManager.success('کد دعوت ساخته شد ✓'); });
+          break;
+        case 'join-invite': {
+          const code = qs('#join-code-input').value.trim();
+          if (!code) { ToastManager.warning('کد را وارد کن.'); return; }
+          await App.withLoading(async () => {
+            await RelationshipManager.joinWithCode(code);
+            await Promise.all([MemoryManager.loadAll(), ChallengeManager.loadAll(), MoodManager.loadHistory(), CycleManager.loadAll(), DailyMessageManager.loadToday()]);
+            RealtimeManager.subscribeToRelationship();
+            UIManager.renderView();
+            ToastManager.success('به پارتنرت متصل شدی ❤️');
+          });
+          break;
+        }
+
+        case 'upload-avatar': qs('#avatar-input').click(); break;
+        case 'save-profile': {
+          const name = qs('#settings-name').value.trim();
+          await App.withLoading(async () => { await ProfileManager.updateProfile({ full_name: name }); UIManager.renderView(); ToastManager.success('با موفقیت ذخیره شد ✓'); });
+          break;
+        }
+        case 'change-password': {
+          const pass = qs('#new-password').value;
+          if (!pass || pass.length < 6) { ToastManager.warning('رمز باید حداقل ۶ کاراکتر باشد.'); return; }
+          await App.withLoading(async () => { await AuthManager.updatePassword(pass); ToastManager.success('رمز عبور به‌روزرسانی شد ✓'); });
+          break;
+        }
+        case 'toggle-pref': {
+          const pref = t.dataset.pref;
+          State.localPrefs[pref] = t.checked;
+          saveLocalPrefs();
+          break;
+        }
+        case 'set-theme': {
+          const theme = t.dataset.value === 'light' ? 'light' : 'dark';
+          State.localPrefs.theme = theme;
+          saveLocalPrefs();
+          document.documentElement.setAttribute('data-theme', theme);
+          UIManager.renderView();
+          break;
+        }
+        case 'test-notification': await NotificationManager.sendTest(); break;
+        case 'logout':
+          confirmModal('از حساب خارج می‌شوی؟', async () => { await AuthManager.signOut(); App.showAuthScreen(); });
+          break;
+
+        default: break;
+      }
+    });
+
+    // Checkbox switch clicks (toggle-pref) come from 'change' on inputs, not click on wrapper
+    document.addEventListener('change', async (e) => {
+      const input = e.target;
+      if (input.matches('[data-action="toggle-pref"]')) {
+        const pref = input.dataset.pref;
+        if (pref === 'notifications') {
+          if (input.checked) {
+            const granted = await NotificationManager.requestPermission();
+            if (!granted) { input.checked = false; return; }
+            NotificationManager.startChecking();
+          } else {
+            NotificationManager.stopChecking();
+          }
+        }
+        State.localPrefs[pref] = input.checked;
+        saveLocalPrefs();
+      }
+      if (input.id === 'task-sort-select' || input.matches('select[data-action="set-task-sort"]')) {
+        State.taskSort = input.value; UIManager.renderView();
+      }
+      if (input.id === 'avatar-input') {
+        const file = input.files[0];
+        if (!file) return;
+        await App.withLoading(async () => {
+          const url = await ProfileManager.uploadAvatar(file);
+          await ProfileManager.updateProfile({ avatar_url: url });
+          UIManager.renderView();
+          ToastManager.success('با موفقیت ذخیره شد ✓');
+        });
+      }
+      if (input.matches('[data-action="toggle-cycle-share"]')) {
+        await App.withLoading(async () => {
+          await CycleManager.toggleShare(input.dataset.id, input.checked);
+          ToastManager.success('تنظیم اشتراک‌گذاری ذخیره شد ✓');
+        });
+      }
+      if (input.name === 'symptoms' && input.closest('.chip')) {
+        input.closest('.chip').classList.toggle('active', input.checked);
+      }
+    });
+
+    // Live label sync for the pain-level slider
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'pain-range') {
+        const lbl = qs('#pain-val');
+        if (lbl) lbl.textContent = Digits.toFa(e.target.value);
+      }
+    });
+
+    // Text inputs: search boxes
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('[data-action="task-search"]')) {
+        State.taskSearch = e.target.value; UIManager.renderView();
+        // preserve focus
+        requestAnimationFrame(() => { const el2 = qs('[data-action="task-search"]'); if (el2) { el2.focus(); el2.selectionStart = el2.selectionEnd = el2.value.length; } });
+      }
+      if (e.target.matches('[data-action="memory-search"]')) {
+        State.memorySearch = e.target.value; UIManager.renderView();
+        requestAnimationFrame(() => { const el2 = qs('[data-action="memory-search"]'); if (el2) { el2.focus(); el2.selectionStart = el2.selectionEnd = el2.value.length; } });
+      }
+    });
+
+    // ---------- Form submits inside modals ----------
+    document.addEventListener('submit', async (e) => {
+      if (e.target.id === 'task-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const editId = e.target.dataset.editId;
+        const payload = {
+          title: fd.get('title').trim(),
+          description: fd.get('description').trim(),
+          due_date: fd.get('due_date') || null,
+          due_time: fd.get('due_time') || null,
+          priority: fd.get('priority'),
+          list_type: fd.get('list_type'),
+          tagNames: fd.get('tags').split(',').map((s) => s.trim()).filter(Boolean),
+          subtasks: fd.get('subtasks').split('\n').map((s) => s.trim()).filter(Boolean)
+        };
+        await App.withLoading(async () => {
+          if (editId) await TaskManager.updateTask(editId, payload);
+          else await TaskManager.createTask(payload);
+          ModalManager.close(); UIManager.renderView();
+          ToastManager.success('با موفقیت ذخیره شد ✓');
+        });
+      }
+
+      if (e.target.id === 'goal-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const editId = e.target.dataset.editId;
+        const payload = {
+          title: fd.get('title').trim(),
+          description: fd.get('description').trim(),
+          horizon: fd.get('horizon'),
+          start_date: fd.get('start_date') || null,
+          deadline: fd.get('deadline') || null,
+          steps: fd.get('steps').split('\n').map((s) => s.trim()).filter(Boolean)
+        };
+        await App.withLoading(async () => {
+          if (editId) await GoalManager.updateGoal(editId, payload);
+          else await GoalManager.createGoal(payload);
+          ModalManager.close(); UIManager.renderView();
+          ToastManager.success('با موفقیت ذخیره شد ✓');
+        });
+      }
+
+      if (e.target.id === 'memory-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const file = fd.get('image');
+        await App.withLoading(async () => {
+          await MemoryManager.create({
+            title: fd.get('title').trim(),
+            memory_date: fd.get('memory_date') || JalaliUtil.dateToIso(new Date()),
+            description: fd.get('description').trim(),
+            location: fd.get('location').trim() || null
+          }, file && file.size ? file : null);
+          ModalManager.close(); UIManager.renderView();
+          ToastManager.success('با موفقیت ذخیره شد ✓');
+        });
+      }
+
+      if (e.target.id === 'challenge-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        await App.withLoading(async () => {
+          await ChallengeManager.create({
+            title: fd.get('title').trim(),
+            description: fd.get('description').trim(),
+            target: Number(fd.get('target')) || 1,
+            start_date: JalaliUtil.dateToIso(new Date()),
+            end_date: fd.get('end_date') || null
+          });
+          ModalManager.close(); UIManager.renderView();
+          ToastManager.success('با موفقیت ذخیره شد ✓');
+        });
+      }
+
+      if (e.target.id === 'cycle-start-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        await App.withLoading(async () => {
+          await CycleManager.startNewPeriod(fd.get('start_date'), fd.get('is_shared') === 'on');
+          ModalManager.close(); UIManager.renderView();
+          ToastManager.success('چرخه‌ات ثبت شد ✓');
+        });
+      }
+
+      if (e.target.id === 'cycle-edit-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const cid = e.target.dataset.id;
+        await App.withLoading(async () => {
+          await CycleManager.correctCycle(cid, { start_date: fd.get('start_date'), end_date: fd.get('end_date') || null });
+          ModalManager.close();
+          UIManager.openCycleModal();
+          ToastManager.success('تاریخ اصلاح و چرخه دوباره محاسبه شد ✓');
+        });
+      }
+
+      if (e.target.id === 'cycle-log-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        await App.withLoading(async () => {
+          await CycleManager.saveTodayLog({
+            symptoms: fd.getAll('symptoms'),
+            pain_level: Number(fd.get('pain_level')) || 0,
+            energy_level: Number(fd.get('energy_level')) || null,
+            mood_today: Number(fd.get('mood_today')) || null,
+            note: (fd.get('note') || '').trim()
+          });
+          ModalManager.close();
+          UIManager.openCycleModal();
+          ToastManager.success('وضعیت امروز ذخیره شد ✓');
+        });
+      }
+
+      if (e.target.id === 'daily-message-form') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const content = (fd.get('content') || '').trim();
+        if (!content) return;
+        await App.withLoading(async () => {
+          await DailyMessageManager.send(content);
+          UIManager.renderView();
+          const list = qs('#daily-messages-list');
+          if (list) list.scrollTop = list.scrollHeight;
+        });
+      }
+    });
+  },
+
+  async init() {
+    this.bindEvents();
+    if (window.lucide) lucide.createIcons();
+    await AuthManager.init();
+    if (window.lucide) lucide.createIcons();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  }
+};
+
+async function TaskOrGoalStepToggle(stepId, goalId) {
+  await App.withLoading(async () => { await GoalManager.toggleStep(stepId, goalId); UIManager.renderView(); });
+}
+
+document.addEventListener('DOMContentLoaded', () => App.init());
+
+</script>
+</body>
+</html>
